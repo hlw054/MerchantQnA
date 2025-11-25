@@ -1,0 +1,20 @@
+/* Login页面样式 */
+.tabsContainer {
+  margin-bottom: 28px;
+}
+
+.forgotPassword {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 28px;
+}
+
+.forgotPassword .arco-link {
+  font-size: 14px;
+  color: #52c41a;
+}
+
+.forgotPassword .arco-link:hover {
+  color: #389e0d;
+  text-decoration: none;
+}

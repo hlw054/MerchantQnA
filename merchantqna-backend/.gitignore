@@ -1,0 +1,87 @@
+# 依赖目录
+node_modules/
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志文件
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 构建输出
+dist
+dist-ssr
+*.local
+build/
+
+# 编辑器目录和文件
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统文件
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+
+# 缓存文件
+.eslintcache
+.stylelintcache
+.cache/
+.parcel-cache/
+.next/
+out/
+
+# 测试覆盖率
+coverage/
+*.lcov
+.nyc_output/
+
+# 临时文件
+*.tmp
+*.temp
+
+# 包管理文件
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Docker相关
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# 其他
+*.pem
+.env.*.local
+
+# TypeScript相关（可选）
+*.tsbuildinfo
+
+# MongoDB数据文件（如果本地开发使用MongoDB）
+data/
+db/
+
+# 环境配置
+config/local.js
+config/development.js
+config/test.js
+config/production.js

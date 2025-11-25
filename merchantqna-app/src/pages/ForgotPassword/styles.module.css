@@ -1,0 +1,63 @@
+/* ForgotPassword页面样式 */
+.headerContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.pageTitle {
+  text-align: center;
+  margin: 0;
+  color: #1f2329;
+  font-weight: 600;
+  font-size: 28px;
+  flex: 1;
+}
+
+.backButton {
+  margin-right: 16px;
+  color: #52c41a;
+}
+
+.backButton:hover {
+  color: #389e0d;
+}
+
+.backLogin {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 28px;
+}
+
+.backLogin .arco-link {
+  font-size: 14px;
+  color: #52c41a;
+}
+
+.backLogin .arco-link:hover {
+  color: #389e0d;
+  text-decoration: none;
+}
+
+.verificationCodeContainer {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.verificationCodeContainer .arco-btn {
+  min-width: 120px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+/* 响应式设计 - 验证码容器特定样式 */
+@media (max-width: 480px) {
+  .verificationCodeContainer {
+    flex-direction: column;
+  }
+
+  .verificationCodeContainer .arco-btn {
+    min-width: auto;
+  }
+}

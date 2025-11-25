@@ -1,0 +1,27 @@
+/* Register页面样式 */
+.tabsContainer {
+  margin-bottom: 28px;
+}
+
+.verificationCodeContainer {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.verificationCodeContainer .arco-btn {
+  min-width: 120px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+/* 响应式设计 - 验证码容器特定样式 */
+@media (max-width: 480px) {
+  .verificationCodeContainer {
+    flex-direction: column;
+  }
+  
+  .verificationCodeContainer .arco-btn {
+    min-width: auto;
+  }
+}
