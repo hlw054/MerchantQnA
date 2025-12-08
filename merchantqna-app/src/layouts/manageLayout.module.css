@@ -1,0 +1,393 @@
+/* 管理端布局样式 */
+.manageLayout {
+  display: flex;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* 左侧侧边栏 */
+.sidebar {
+  width: 240px;
+  background-color: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  height: 100vh;
+  overflow-y: auto;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+/* 折叠状态的侧边栏 */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* 折叠状态下的导航链接 */
+.sidebar.collapsed .navLink {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+/* 折叠状态下的导航图标 */
+.sidebar.collapsed .navIcon {
+  margin-right: 0;
+  font-size: 20px; /* 关闭状态下图标和正常状态一样大 */
+}
+
+/* 折叠状态下隐藏展开图标 */
+.sidebar.collapsed .expandIcon {
+  display: none;
+}
+
+/* 为所有导航链接添加position:relative */
+.navLink {
+  position: relative;
+}
+
+/* 选中状态样式 */
+.navItem.active .navLink,
+.navLink.active {
+  background-color: #E8F3FF;
+  color: #165DFF;
+  font-weight: 500;
+}
+
+/* 选中状态下的图标颜色 */
+.navItem.active .navIcon,
+.navLink.active .navIcon {
+  color: #165DFF;
+}
+
+/* 折叠状态下的导航项hover效果 */
+.sidebar.collapsed .navList .navItem {
+  position: relative;
+}
+
+
+/* 侧边栏顶部 */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.logoIcon {
+  font-size: 24px;
+  color: #165DFF;
+}
+
+.sidebarTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+  margin-left: 10px;
+  flex: 1;
+}
+
+/* 折叠/展开按钮 */
+.collapseButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666666;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px; /* 增大折叠/展开按钮图标尺寸 */
+}
+
+.collapseButton:hover {
+  background-color: #f5f5f5;
+  color: #165DFF;
+}
+
+.nav {
+  padding: 20px 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 4px;
+  position: relative;
+}
+
+/* 展开的子菜单 - 只通过点击触发，移除hover效果 */
+.navItem.expanded .subNavList {
+  display: block;
+  max-height: 200px;
+}
+
+/* 折叠状态下的子菜单 */
+.sidebar.collapsed .navItem .subNavList {
+  position: absolute;
+  left: 60px;
+  top: 0;
+  width: 180px;
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0 4px 4px 0;
+  z-index: 101;
+  display: none;
+}
+
+/* 折叠状态下的子菜单 - 只通过点击触发，移除hover效果 */
+.sidebar.collapsed .navItem.expanded .subNavList {
+  display: block;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #333333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 展开图标样式 */
+.expandIcon {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+/* 展开图标旋转 */
+.expandIcon.rotated {
+  transform: rotate(180deg);
+}
+
+.navLink:hover {
+  background-color: #f5f5f5;
+  color: #165DFF;
+}
+
+.navIcon {
+  margin-right: 12px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 子菜单样式 */
+.subNavList {
+  padding-left: 0;
+  margin: 0;
+  background-color: #ffffff;
+  display: none;
+  border-left: 2px solid #E8F3FF;
+}
+
+/* 展开的子菜单 - 只通过点击触发，移除hover效果 */
+.navItem.expanded .subNavList {
+  display: block;
+}
+
+.subNavItem {
+  margin: 0;
+}
+
+.subNavLink {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 10px 52px;
+  color: #666666;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.3s;
+  border-left: 2px solid transparent;
+}
+
+/* 子菜单选中状态样式 */
+.subNavItem.active .subNavLink,
+.subNavLink.active {
+  background-color: #F5F9FF;
+  color: #165DFF;
+  border-left-color: #165DFF;
+  font-weight: 500;
+}
+
+/* 子菜单hover样式 */
+.subNavLink:hover {
+  background-color: #F5F9FF;
+  color: #165DFF;
+  border-left-color: #165DFF;
+}
+
+/* 子菜单图标样式 */
+.subNavIcon {
+  margin-right: 8px;
+  font-size: 16px;
+  color: #999999;
+}
+
+/* 子菜单选中状态下的图标颜色 */
+.subNavItem.active .subNavIcon,
+.subNavLink.active .subNavIcon {
+  color: #165DFF;
+}
+
+/* 折叠状态下的子菜单链接 */
+.sidebar.collapsed .subNavLink {
+  padding: 10px 20px;
+}
+
+.subNavLink:hover {
+  background-color: #f0f0f0;
+  color: #165DFF;
+}
+
+/* 用户信息容器 */
+.userProfileContainer {
+  border-top: 1px solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 用户信息样式 */
+.userProfile {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+}
+
+/* 折叠状态下的用户信息 */
+.userProfile.collapsed {
+  padding: 12px 2px;
+  justify-content: center;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #165DFF;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+/* 折叠状态下的头像 */
+.sidebar.collapsed .avatar {
+  margin-right: 0;
+}
+
+.username {
+  font-size: 14px;
+  color: #333333;
+  transition: all 0.3s ease;
+}
+
+/* 右侧主内容区 */
+.mainContent {
+  flex: 1;
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 折叠状态下的主内容区 */
+.mainContent.collapsed {
+  margin-left: 60px;
+}
+
+/* 路径显示 */
+.pathName {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px 45px 10px;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+/* 路径 */
+.path {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* 路径项 */
+.pathItem {
+  color: #666666;
+}
+
+/* 路径分隔符 */
+.pathSeparator {
+  color: #999999;
+  margin: 0 4px;
+}
+
+/* 返回用户端按钮 */
+.backToUserButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f0f5ff;
+  border: 1px solid #e0e7ff;
+  color: #165DFF;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(22, 93, 255, 0.1);
+}
+
+.backToUserButton:hover {
+  background-color: #165DFF;
+  color: #ffffff;
+  border-color: #165DFF;
+  box-shadow: 0 4px 12px rgba(22, 93, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.backToUserButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(22, 93, 255, 0.15);
+}
+
+.backIcon {
+  font-size: 16px;
+}
+
+/* 页面内容 */
+.content {
+  flex: 1;
+  padding: 0 24px;
+  background-color: #fafafa;
+  overflow-y: auto;
+}

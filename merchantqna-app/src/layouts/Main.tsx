@@ -12,7 +12,7 @@ const Main: React.FC<MainProps> = ({ children }) => {
   return (
     <Content style={{ 
       minHeight: 'calc(100vh - 136px)',
-      backgroundColor: '#fff' 
+      backgroundColor: '#fafcff' 
     }}>
       {children}
     </Content>

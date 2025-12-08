@@ -80,7 +80,7 @@ const LoginPage: React.FC = () => {
         
         try {
           // 登录成功后调用getCurrentUser获取用户信息
-          const userInfo = await getCurrentUser();
+          const userInfo = (await getCurrentUser()).data.user;
           localStorage.setItem('userInfo', JSON.stringify(userInfo));
         } catch (error) {
           console.error('获取用户信息失败:', error);

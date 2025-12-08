@@ -1,0 +1,856 @@
+/* QA页面基础样式 */
+.qaContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* 左侧侧栏 */
+.sidebar {
+  width: 260px;
+  /* 删除背景色和边框 */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  transform: translateX(0);
+  opacity: 1;
+  position: relative;
+  z-index: 10;
+}
+
+/* 侧栏收起状态 */
+.sidebarCollapsed {
+  width: 0;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+/* 侧栏顶部 */
+.sidebarHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 8px;
+  /* 删除底部边框 */
+}
+
+/* 图标按钮容器 */
+.iconButtonContainer {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+/* 图标按钮 */
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: rgba(0,0,0,0.7);
+  stroke-width: 3;
+}
+
+.iconButton:hover {
+  background-color: #e0e0e0;
+}
+
+/* 图标按钮提示文字 */
+.iconTooltip {
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 1000;
+}
+
+/* 显示提示文字 */
+.iconButtonContainer:hover .iconTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 搜索框 */
+.searchBox {
+  margin-top: -8px;
+  padding: 0 16px;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 27px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #999;
+  z-index: 1;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #e7e7e7;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: #999;
+  box-shadow: none;
+}
+
+/* 助手信息 */
+.assistantInfo {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  /* 删除底部边框 */
+}
+
+/* 抖音图标 */
+.douyinIcon {
+  font-size: 20px;
+  margin-left: 10px;
+  margin-right: 8px;
+  color: #000;
+}
+
+/* 助手名称 */
+.assistantName {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.9);
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", Roboto, Ubuntu, "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans CN", sans-serif;
+}
+
+/* 聊天标题 */
+.chatTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  padding: 0px 26px;
+  margin-bottom: 8px;
+  /* 删除底部边框 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", Roboto, Ubuntu, "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans CN", sans-serif;
+}
+
+/* 聊天列表 */
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+}
+
+.chatList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+/* 聊天列表项 */
+.chatItem {
+  padding: 7px 12px 5px;
+  margin: 2px 15px;
+  /* 删除底部边框 */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+}
+
+.chatItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 聊天列表项内容 */
+.chatItemContent {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 聊天标题 */
+.chatItemTitle {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", Roboto, Ubuntu, "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans CN", sans-serif;
+}
+
+/* 空聊天列表样式 */
+.emptyChatList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+  text-align: center;
+}
+
+.emptyChatListText {
+  font-size: 14px;
+  color: #999;
+}
+
+/* 聊天时间 */
+.chatItemTime {
+  font-size: 12px;
+  color: #999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", Roboto, Ubuntu, "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans CN", sans-serif;
+}
+
+/* 活跃聊天项 */
+.chatItemActive {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px;
+}
+
+/* 聊天标题栏 */
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  padding: 0 20px;
+  height: 50px;
+}
+
+
+/* 聊天标题文本 */
+.chatTitleText {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* 聊天头部左侧区域 */
+.chatHeaderLeft {
+  display: flex;
+  align-items: center;
+}
+
+/* 分割线 */
+.divider {
+  width: 2px;
+  height: 15px;
+  background-color: #e0e0e0;
+  margin: 0 12px 0 8px;
+}
+
+/* 标题栏图标 */
+.headerIcon {
+  color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+  font-size: 20px;
+  transition: color 0.2s ease;
+  stroke-width: 3;
+}
+
+.headerIcon:hover {
+  color: rgba(0, 0, 0, 1);
+}
+
+/* 聊天内容区域 */
+.chatContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-y: scroll;
+  padding: 20px;
+}
+
+/* 聊天内容占位符 */
+.chatPlaceholder {
+  font-size: 16px;
+  color: #999;
+}
+
+/* 聊天容器 */
+.chatContainer {
+  width: 80%;
+  max-width: 1000px; /* 设置最大宽度 */
+}
+
+/* 欢迎消息 */
+.welcomeMessage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.welcomeText {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 消息列表 */
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 自定义滚动条样式 */
+.chatContent::-webkit-scrollbar,
+.chatInput::-webkit-scrollbar {
+  width: 8px;
+  height: auto;
+}
+
+.chatContent::-webkit-scrollbar-track,
+.chatInput::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatContent::-webkit-scrollbar-thumb,
+.chatInput::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 5px;
+}
+
+.chatContent::-webkit-scrollbar-thumb:hover,
+.chatInput::-webkit-scrollbar-thumb:hover {
+  background-color: #b3b3b3;
+}
+
+/* 消息项 */
+.messageItem {
+  display: flex;
+  max-width: 100%;
+}
+
+/* 用户消息 */
+.userMessage {
+  justify-content: flex-end;
+}
+
+/* 助手消息 */
+.assistantMessage {
+  justify-content: flex-start;
+}
+
+/* 消息内容 */
+.messageContent {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.userMessage .messageContent {
+  background-color: #f3f3f3;
+  color: #333;
+  border-radius: 8px;
+}
+
+.assistantMessage .messageContent {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+/* 输入框容器 */
+.inputContainer {
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
+/* AI生成内容提示 */
+.aiDisclaimer {
+  font-size: 12px;
+  color: #999999;
+  text-align: center;
+  margin-top: 11px;
+}
+
+/* 输入框包装器 */
+.inputWrapper {
+  padding: 10px 20px 10px 5px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  gap: 5px;
+}
+
+/* 输入框包装器有内容时的样式 */
+.inputWrapperActive {
+  border-color: #40a9ff;
+  box-shadow: 0 2px 12px rgba(64, 169, 255, 0.2);
+}
+
+/* 聊天输入框 */
+.chatInput {
+  min-height: 20px;
+  max-height: 100px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  width: 100%;
+}
+
+/* ReactMarkdown 文档内容样式 */
+.documentContent {
+  color: #000000;
+  line-height: 1.8;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 自定义链接样式 */
+.customLink {
+  color: #165DFF;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease;
+}
+
+.customLink:hover {
+  color: #4080FF;
+  text-decoration: underline;
+}
+
+.linkIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 自定义图片样式 */
+.imageContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.customImage {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: opacity 0.3s ease;
+}
+
+.customImage.loading {
+  opacity: 0.5;
+}
+
+.customImage.error {
+  opacity: 0.3;
+}
+
+.imageLoading, .imageError {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #999;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid #165DFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 表格样式 */
+.documentContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.documentContent th, .documentContent td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.documentContent th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #000000;
+}
+
+.documentContent tr:hover {
+  background-color: #f9fafb;
+}
+
+/* 代码块样式 */
+.documentContent pre {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid #e5e7eb;
+}
+
+.documentContent code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #d14;
+}
+
+.documentContent pre code {
+  color: #000000;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.chatInput:focus {
+  outline: none;
+}
+
+/* 发送按钮行 */
+.sendButtonRow {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* 发送按钮 */
+.sendButton {
+  width: 36px;
+  height: 36px;
+  background-color: #d9d9d9;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 发送按钮图标 */
+.sendButton svg {
+  transform: rotate(-90deg);
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* 发送按钮有内容时的样式 */
+.sendButtonActive {
+  background-color: #40a9ff;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #69c0ff;
+  transform: scale(1.05);
+}
+
+.sendButton:disabled {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+/* 下拉菜单 */
+.dropdownMenu {
+  position: fixed;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 120px;
+  z-index: 1001;
+  padding: 4px 0;
+}
+
+/* 下拉菜单项 */
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
+/* 下拉菜单项图标 */
+.dropdownIcon {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+/* 返回首页按钮 */
+.homeButton {
+  margin: 36px 16px 0;
+  padding: 12px;
+  background-color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.homeButton:hover {
+  background-color: #f5f5f5;
+}
+
+/* 底部用户信息 */
+.userInfo {
+  display: flex;
+  align-items: center;
+  padding: 16px 16px 16px;
+  /* 删除顶部边框 */
+}
+
+/* 用户头像 */
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.9);
+  font-size: 16px;
+  margin-right: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 用户名 */
+.userName {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 右侧主内容区域 */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: 8px;
+  margin: 8px;
+  height: 100vh;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* 侧边栏收起时的顶部工具栏 */
+.sidebarToggleBar {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+
+/* 主内容空状态 */
+.emptyMain {
+  font-size: 16px;
+  color: #999;
+}
+
+/* 弹窗样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  animation: slideUp 0.2s ease;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.modalInputContainer {
+  margin-bottom: 20px;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.modalInput:focus {
+  outline: none;
+  border-color: #1989fa;
+  box-shadow: 0 0 0 2px rgba(25, 137, 250, 0.1);
+}
+
+.modalMessage {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modalCancelButton,
+.modalConfirmButton,
+.modalDangerButton {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.modalCancelButton {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.modalCancelButton:hover {
+  background-color: #e5e5e5;
+}
+
+.modalConfirmButton {
+  background-color: #1989fa;
+  color: white;
+}
+
+.modalConfirmButton:hover {
+  background-color: #0c7ad9;
+}
+
+.modalDangerButton {
+  background-color: #f56c6c;
+  color: white;
+}
+
+.modalDangerButton:hover {
+  background-color: #e64949;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -24,7 +24,7 @@ request.interceptors.request.use(
 
 // 添加响应拦截器
 request.interceptors.response.use(
-    (res) => res.data,
+    (res) => res,
     (err) => {
         // 处理token过期或认证失败的情况（通常是401错误）
         if (err.response && err.response.status === 401) {

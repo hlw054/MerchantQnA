@@ -1,0 +1,848 @@
+/* RuleDetail 页面专用样式 - 优先级最高，覆盖全局样式 */
+
+/* 整体容器 */
+.knowledgeContainer {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+}
+
+/* 页面头部 */
+.header {
+  padding: 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.headerTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* 导航路径 - 确保深色字体 */
+.navPath {
+  padding: 16px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.navItem {
+  color: #666666 !important; /* 修改为更浅的颜色 */
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navItem:hover {
+  color: #1890ff !important;
+  text-decoration: none;
+}
+
+.navItem.current {
+  color: #1890ff !important;
+  font-weight: 500;
+}
+
+.navArrow {
+  color: #999999 !important;
+  margin: 0 8px;
+}
+
+
+/* 主内容布局 - 适配固定侧边栏 */
+.mainLayout {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: block;
+}
+
+/* 左侧目录区域 - 确保固定定位和深色字体 */
+.leftSidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #e8e8e8;
+  padding: 24px 20px;
+  position: sticky !important;
+  top: 0;
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.05);
+  color: #1a1a1a !important;
+}
+
+/* 新的侧边栏样式 - 固定定位并占据整个屏幕高度 */
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 300px;
+  height: calc(100vh - 64px);
+  background-color: #fafafa;
+  border-right: 1px solid #e8e8e8;
+  padding: 16px 20px;
+  overflow-y: auto;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* 目录样式 - 强制深色字体 */
+.tableOfContents {
+  width: 100%;
+}
+
+.tocTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a !important;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e8e8e860;
+  padding-bottom: 8px;
+}
+
+.tocList {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.tocItem {
+  margin-bottom: 4px;
+}
+
+.tocItemContent {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  padding-left: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.tocItemContent:hover {
+  background-color: #f0f0f0;
+}
+
+.tocItemInner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.toggleIconContainer {
+  width: 15px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.toggleIcon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666666 !important;
+  transition: transform 0.2s;
+}
+
+.toggleIcon.expanded {
+  transform: rotate(0deg);
+}
+
+.tocText {
+  flex: 1;
+  font-size: 14px;
+  color: #1a1a1a !important;
+  line-height: 1.5;
+  transition: color 0.2s;
+}
+
+.tocItemContent:hover .tocText {
+  color: #1890ff !important;
+}
+
+.tocChildren {
+  margin-left: 0;
+}
+
+/* 右侧内容区域 */
+.rightContent {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 32px 40px;
+  overflow-y: auto;
+  height: calc(100vh - 150px);
+}
+
+/* 新的内容区域样式 - 适配固定侧边栏 */
+.content {
+  margin-left: 300px; /* 为固定侧边栏留出空间 */
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: calc(100% - 300px);
+}
+
+/* 内容区域内的导航路径 */
+.content .navPath {
+  padding: 16px 40px;
+  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 0;
+}
+
+/* 文档头部 */
+.documentHeader {
+  padding: 8px 0 24px;
+  border-bottom: 1px solid #e8e8e8;
+  margin: 0 40px;
+  max-width: 85%;
+}
+
+.documentTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+  line-height: 1.3;
+}
+
+.documentMeta {
+  font-size: 14px;
+  color: #8c8c8c; /* 修改为更浅的颜色 */
+}
+
+.updateTime {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+/* 文档内容 */
+.documentContent {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #262626;
+  padding: 0 40px 40px;
+  max-width: 85%;
+}
+
+.document-content h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.document-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.document-content h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.document-content p {
+  margin-bottom: 16px;
+  color: #000000 !; /* 更深的黑色文本 */
+  line-height: 1.8;
+}
+
+.document-content {
+  color: #000000; /* 设置整个内容区域的文本颜色为纯黑色 */
+}
+
+/* 超链接样式 */
+.document-content a {
+  color: #0066cc; /* 蓝色超链接 */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.document-content a:hover {
+  color: #004c99;
+  text-decoration: underline;
+}
+
+/* 图片样式 */
+.document-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 16px 0;
+  display: block;
+}
+
+/* 标题样式 */
+.document-content h1,
+.document-content h2,
+.document-content h3,
+.document-content h4,
+.document-content h5,
+.document-content h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.document-content h1 {
+  font-size: 2em;
+  border-bottom: 2px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.document-content h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.document-content h3 {
+  font-size: 1.25em;
+}
+
+/* 列表样式 */
+.document-content ul,
+.document-content ol {
+  padding-left: 2em;
+  margin-bottom: 16px;
+}
+
+.document-content li {
+  margin-bottom: 8px;
+}
+
+/* 引用样式 */
+.document-content blockquote {
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+  margin: 0 0 16px 0;
+}
+
+/* 代码块样式 */
+.document-content pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+  margin-bottom: 16px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 85%;
+  line-height: 1.45;
+}
+
+.document-content code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 85%;
+}
+
+/* 自定义链接样式 */
+.customLink {
+  color: #0066cc;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.customLink:hover {
+  color: #004c99;
+  text-decoration: underline;
+}
+
+.customLink:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.linkIcon {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.customLink:hover .linkIcon {
+  opacity: 1;
+}
+
+/* 自定义图片样式 */
+.imageContainer {
+  position: relative;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.customImage {
+  max-width: 80%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.customImage:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.customImage.loading {
+  opacity: 0.4;
+}
+
+.customImage.error {
+  display: none;
+}
+
+.imageLoading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.imageError {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  padding: 16px 24px;
+  border-radius: 6px;
+  color: #d32f2f;
+  text-align: center;
+  font-size: 14px;
+}
+
+.imageCaption {
+  margin-top: 8px;
+  padding: 4px 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* 表格样式 */
+.documentContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.documentContent th,
+.documentContent td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #e8e8e8;
+}
+
+.documentContent th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.documentContent tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.documentContent tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* 响应式设计 - 移除小屏幕下的垂直布局 */
+@media (max-width: 1200px) {
+  .leftSidebar {
+    width: 280px;
+  }
+  
+  .rightContent {
+    padding: 28px 32px;
+  }
+}
+
+@media (max-width: 992px) {
+  /* 强制保留左右布局在所有屏幕尺寸 */
+  .container {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+  }
+  
+  .leftSidebar {
+    width: 250px;
+    position: sticky !important;
+    height: calc(100vh - 150px);
+    border-right: 1px solid #e8e8e8;
+    border-bottom: none;
+  }
+  
+  .rightContent {
+    flex: 1;
+    min-width: 300px;
+    height: calc(100vh - 150px);
+  }
+  
+  /* 新样式的响应式 */
+  .main-layout {
+    flex-direction: row;
+  }
+  
+  .sidebar {
+    width: 250px;
+    height: calc(100vh - 100px);
+  }
+  
+  .content {
+    flex: 1;
+    min-width: 300px;
+    height: calc(100vh - 100px);
+  }
+  
+  .content .navPath,
+  .document-header,
+  .document-content {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 22px;
+  }
+  
+  .document-title {
+    font-size: 28px;
+  }
+  
+  .right-content {
+    padding: 24px 20px;
+  }
+  
+  .nav-path {
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* 新样式的响应式 */
+  .content .nav-path,
+  .document-header,
+  .document-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 16px;
+  }
+  
+  .nav-path {
+    padding: 12px 16px;
+  }
+  
+  .right-content {
+    padding: 20px 16px;
+  }
+  
+  .header-title {
+    font-size: 20px;
+  }
+  
+  .document-title {
+    font-size: 24px;
+  }
+  
+  .document-content {
+    font-size: 15px;
+  }
+  
+  .document-content h2 {
+    font-size: 22px;
+  }
+  
+  .document-content h3 {
+    font-size: 18px;
+  }
+  
+  .document-content h4 {
+    font-size: 16px;
+  }
+}
+
+/* 右下角操作按钮样式 */
+.actionButtons {
+  position: fixed;
+  bottom: 180px; /* 向上移动了40px */
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
+}
+
+/* 自定义Tooltip样式 */
+.tooltipContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1001;
+}
+
+.tooltipContainer:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent #333;
+}
+
+.actionButton {
+  width: 48px;
+  height: 48px;
+  background-color: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.actionButton:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .actionButtons {
+    bottom: 24px;
+    right: 24px;
+  }
+  
+  .actionButton {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+}
+
+/* 图片预览样式 */
+.imagePreviewModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: pointer;
+  /* 禁用默认的滚轮行为 */
+  overflow: hidden;
+}
+
+.previewImageContainer {
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 100vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.previewCloseButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
+
+.previewCloseButton:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+/* 图片导航按钮 */
+.previewNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
+
+.previewNavButton:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.previewNavButton.previous {
+  left: 20px;
+}
+
+.previewNavButton.next {
+  right: 20px;
+}
+
+/* 图片预览的加载状态 */
+.previewImage.loading {
+  opacity: 0.5;
+}
+
+/* 响应式图片预览 */
+@media (max-width: 768px) {
+  .previewCloseButton {
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+  }
+  
+  .previewNavButton {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .previewNavButton.previous {
+    left: 10px;
+  }
+  
+  .previewNavButton.next {
+    right: 10px;
+  }
+}

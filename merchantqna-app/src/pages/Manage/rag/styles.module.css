@@ -1,0 +1,640 @@
+.manageContainer {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* 考虑导航栏高度 */
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.container:hover {
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
+}
+
+.contentWrapper {
+  padding: 20px;
+}
+
+/* 知识库上传标题样式 */
+.sectionTitle {
+  margin: 0;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 搜索区域样式 */
+.searchContainer {
+  padding: 15px 20px;
+  border-radius: 8px;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.searchItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchItem label {
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.searchInput {
+  width: 200px;
+  padding: 6px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.searchButtons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.searchButton,
+.resetButton {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.searchButton {
+  background-color: #1890ff;
+  color: white;
+}
+
+.searchButton:hover {
+  background-color: #40a9ff;
+}
+
+.resetButton {
+  background-color: white;
+  color: #666;
+  border: 1px solid #d9d9d9;
+}
+
+.resetButton:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* 表格样式 */
+.tableContainer {
+  margin: 15px 20px;
+  overflow-x: auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+}
+
+.documentTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.documentTable th,
+.documentTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 调整列宽 */
+.documentTable th:nth-child(2),
+.documentTable td:nth-child(2) {
+  width: 30%;
+  min-width: 200px;
+}
+
+.documentTable th:nth-child(3),
+.documentTable td:nth-child(3) {
+  width: 20%;
+}
+
+.documentTable th {
+  background-color: #fafafa;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.documentTable td {
+  font-size: 14px;
+  color: #333;
+}
+
+.documentTable tr:hover {
+  background-color: #fafafa;
+}
+
+/* 状态样式 */
+.statusUploaded {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f6ffed;
+  color: #52c41a;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #b7eb8f;
+}
+
+.statusNotUploaded {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #fff2e8;
+  color: #fa8c16;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #ffd591;
+}
+
+/* 操作按钮样式 */
+.actionCells {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.actionIcon {
+  padding: 4px 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  color: #666;
+}
+
+.actionIcon:hover {
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.actionIcon.upload {
+  color: #1890ff;
+}
+
+.actionIcon.upload:hover {
+  color: #40a9ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.actionIcon.remove {
+  color: #f5222d;
+}
+
+.actionIcon.remove:hover {
+  color: #ff4d4f;
+  background-color: rgba(245, 34, 45, 0.1);
+}
+
+.actionIcon.view {
+  color: #52c41a;
+}
+
+.actionIcon.view:hover {
+  color: #73d13d;
+  background-color: rgba(82, 196, 26, 0.1);
+}
+
+/* 加载状态样式 */
+.loadingOverlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(24, 144, 255, 0.1), #1890ff);
+  animation: spin 1.2s linear infinite;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.loadingSpinner::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+}
+
+.loadingSpinner::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #1890ff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+.loadingContent {
+  max-width: 300px;
+}
+
+.loadingText {
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.loadingTimer {
+  color: #666;
+  font-size: 14px;
+  animation: fadeInUp 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 加载弹窗的层级控制 */
+.loadingModal {
+  z-index: 2000 !important;
+}
+
+.loadingModal .arco-modal-mask {
+  z-index: 1999 !important;
+}
+
+/* 分页样式 */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  margin-top: 20px;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 空状态 */
+.emptyState {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+}
+
+/* 树状结构全屏弹窗 */
+.chunksTreeOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.chunksTreeModal {
+  width: 90%;
+  height: 90%;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.chunksTreeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 24px;
+  background-color: #40a9ff;
+  border-bottom: none;
+}
+
+.chunksTreeTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.closeChunksTreeButton {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background-color: transparent;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.closeChunksTreeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+  transform: rotate(90deg);
+}
+
+.chunksTreeContent {
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.chunksTreeDataCount {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.chunksTreeChart {
+  width: 100%;
+  height: 100%;
+  background-color: #fafafa;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 文档分块模态框样式 */
+.chunksModalContent {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* 弹窗样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 480px;
+  max-width: 90%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+/* 加载弹窗层级控制 - 使用更高的z-index确保显示在最上层 */
+.loadingModal {
+  z-index: 9999 !important;
+}
+
+.loadingModal + .arco-modal-mask {
+  z-index: 9998 !important;
+}
+
+/* 直接作用于Modal内容区域的样式 */
+.loadingModal .arco-modal-content {
+  z-index: 9999 !important;
+}
+
+.closeButton:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modalContent {
+  padding: 20px;
+}
+
+.modalFormGroup {
+  margin-bottom: 16px;
+}
+
+.modalFormGroup:last-child {
+  margin-bottom: 0;
+}
+
+.modalFormGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.modalInput,
+.modalSelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.modalInput:focus,
+.modalSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancelButton {
+  background-color: white;
+  color: #666;
+  border: 1px solid #d9d9d9;
+}
+
+.cancelButton:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.confirmButton {
+  background-color: #1890ff;
+  color: white;
+  border: 1px solid #1890ff;
+}
+
+.confirmButton:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.chunkItem {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  padding-left: 10px;
+  border-bottom: 1px solid #f0f9eb;
+  border-left: 3px solid #52c41a;
+  background-color: #f6ffed;
+}
+
+.chunkItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.chunkItem h4 {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.chunkItem p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #52c41a;
+  word-break: break-word;
+}

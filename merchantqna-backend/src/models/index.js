@@ -6,11 +6,32 @@ const { sequelize } = require('../config/database');
 
 // 导入所有模型
 const User = require('./User');
+const Knowledge = require('./Knowledge');
+const Chat = require('./Chat');
+const Message = require('./Message');
+const Label = require('./Label');
 
 // 定义模型之间的关联关系
 const setupAssociations = () => {
-  // 在这里定义模型之间的关系
-  // 例如: User.hasMany(Post);
+  // 用户与聊天会话：一对多
+  User.hasMany(Chat, {
+    foreignKey: 'userId',
+    as: 'chats'
+  });
+  Chat.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+  });
+  
+  // 聊天会话与消息：一对多
+  Chat.hasMany(Message, {
+    foreignKey: 'chatId',
+    as: 'messages'
+  });
+  Message.belongsTo(Chat, {
+    foreignKey: 'chatId',
+    as: 'chat'
+  });
 };
 
 // 初始化数据库
@@ -34,5 +55,9 @@ module.exports = {
   sequelize,
   initializeDatabase,
   // 导出模型
-  User
+  User,
+  Knowledge,
+  Chat,
+  Message,
+  Label
 };

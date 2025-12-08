@@ -1,0 +1,15 @@
+.dashboardContainer {
+  padding: 20px;
+  min-height: calc(100vh - 60px);
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #1E1E1E;
+}
+
+p {
+  font-size: 16px;
+  color: #8C8C8C;
+}

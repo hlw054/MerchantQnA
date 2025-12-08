@@ -1,0 +1,233 @@
+.header {
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 10px 20px 10px;
+}
+
+.logo-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  margin-right: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.main-title {
+  font-family: 
+    "PingFang SC", 
+    "SF Pro SC", 
+    "SF Pro Text", 
+    "SF Pro Icons", 
+    "PingFang SC", 
+    "HarmonyOS Sans SC",
+    "Helvetica Neue", 
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1E1E1E;
+  margin: 0;
+}
+
+.nav-container {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #1890ff;
+}
+
+.nav-link.active {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #1890ff;
+  border-radius: 1.5px;
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  margin-right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #40a9ff;
+
+  width: 32px;
+  height: 32px;
+  transition: background-color 0.3s ease;
+}
+
+.user-avatar-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.user-avatar-container:hover {
+  background-color: #f5f5f5;
+}
+
+.user-avatar-container:hover .user-avatar {
+  background-color: #2f54eb;
+}
+
+.user-name {
+  color: #1890ff;
+  transition: color 0.3s ease;
+  font-size: 14px;
+}
+
+.user-avatar-container:hover .user-name {
+  color: #2f54eb;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  margin-top: 4px;
+  min-width: 120px;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  /* 修复位置对齐问题 */
+  transform: translateX(-16%);
+}
+
+.user-avatar-container:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.login-link {
+  color: #1890ff;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.login-link:hover {
+  background-color: #e6f7ff;
+  color: #40a9ff;
+}
+
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 20px;
+  text-align: center;
+}
+
+.footer-text {
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+
+.footer-text p {
+  margin: 8px 0;
+}
+
+.footer-divider {
+  height: 1px;
+  background-color: #555;
+  margin: 20px 0;
+  opacity: 0.5;
+}
+
+.footer-copyright {
+  color: #999;
+}
+
+.footer-icp {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #777;
+}

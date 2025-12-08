@@ -1,16 +1,21 @@
 import React from 'react';
-import { Layout, Typography, Avatar } from '@arco-design/web-react';
-import { Link } from 'react-router-dom';
+import { Layout, Avatar } from '@arco-design/web-react';
+import { IconTiktokColor, IconUser, IconCloseCircle } from '@arco-design/web-react/icon';
+import { Link, useLocation } from 'react-router-dom';
+import styles from '../styles/layouts.module.css';
 
 const { Header: ArcoHeader } = Layout;
-const { Title } = Typography;
 
 const Header: React.FC = () => {
+  // 获取当前路由
+  const location = useLocation();
+  // 注意：已将下拉菜单从点击显示改为hover显示，不再需要状态控制
   // 从localStorage获取用户信息和角色
   const getUserInfo = () => {
     const userInfoStr = localStorage.getItem('userInfo');
     if (userInfoStr) {
       try {
+        console.log('userInfoStr:', userInfoStr);
         return JSON.parse(userInfoStr);
       } catch (e) {
         console.error('解析用户信息失败:', e);
@@ -22,86 +27,87 @@ const Header: React.FC = () => {
   const hasToken = localStorage.getItem('token');
   const userInfo = hasToken ? getUserInfo() : null;
   const isRoot = userInfo?.role === 'root';
-  
   // 获取显示名称：优先使用用户名，若无则使用账号名
-  const displayName = userInfo?.username || userInfo?.account || '';
+  const displayName = userInfo?.account || '';
+  
+  // 退出登录函数
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    // 刷新页面以更新状态
+    window.location.reload();
+  };
+  
+  // 注意：已将下拉菜单从点击显示改为hover显示，不再需要点击事件处理
 
   // 导航菜单项
   const navItems = [
     { key: 'home', label: '首页', path: '/' },
-    { key: 'rules', label: '规则中心', path: '/rules' },
+    { key: 'rules', label: '知识中心', path: '/rules' },
     { key: 'qa', label: '智能问答', path: '/qa' },
-    { key: 'manage', label: '规则管理', path: '/manage', show: isRoot },
+    { key: 'manage', label: '进入管理端', path: '/manage/overview', show: true },
     { key: 'dashboard', label: '智慧大屏', path: '/dashboard', show: isRoot },
   ];
 
   return (
-    <ArcoHeader style={{ backgroundColor: '#fff', padding: '0 15%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
-        {/* 左侧Logo和标题 */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          {/* 简单的Logo图标，实际项目中可以替换为SVG图标 */}
-          <div style={{ 
-            width: 32, 
-            height: 32, 
-            backgroundColor: '#1890ff', 
-            borderRadius: '4px', 
-            marginRight: '12px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}>
-            智
-          </div>
-          <Title heading={4} style={{ color: '#1890ff', margin: 0 }}>
-            商家知识平台
-            <span style={{ fontSize: '14px', color: '#666', fontWeight: 'normal', marginLeft: '8px' }}>
-              & 智能问答机器人
-            </span>
-          </Title>
-        </Link>
+    <ArcoHeader className={styles.header} style={{ padding: '0' }}>
+      <div className={styles['header-container']}>
+        {/* 左侧Logo和导航菜单 */}
+        <div className={styles['logo-nav-container']}>
+          {/* Logo和标题 */}
+          <Link to="/" className={styles['logo-link']}>
+            {/* TikTok图标 */}
+            <div className={styles['logo-icon']}>
+              <IconTiktokColor />
+            </div>
+            <div className={styles['title-container']}>
+              <div className={styles['main-title']}>
+                商家知识平台
+              </div>
+            </div>
+          </Link>
 
-        {/* 中间导航菜单 */}
-        <div style={{ display: 'flex', gap: '24px' }}>
-          {navItems
-            .filter(item => item.show !== false)
-            .map(item => (
-              <Link
-                key={item.key}
-                to={item.path}
-                style={{
-                  color: '#333',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  padding: '8px 0',
-                  position: 'relative'
-                }}
-                className="nav-link"
-              >
-                {item.label}
-              </Link>
-            ))}
+          {/* 导航菜单 */}
+          <div className={styles['nav-container']}>
+            {navItems
+              .filter(item => item.show !== false)
+              .map(item => (
+                <Link
+                  key={item.key}
+                  to={item.path}
+                  className={`${styles['nav-link']} ${item.key === 'rules' && location.pathname.startsWith('/rules') ? styles['active'] : location.pathname === item.path ? styles['active'] : ''}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+          </div>
         </div>
 
         {/* 右侧登录状态 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className={styles['login-container']}>
           {hasToken && userInfo ? (
-            // 已登录状态
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            // 已登录状态 - 带下拉菜单
+            <div className={`${styles['user-avatar-container']} user-avatar-container`}>
               <Avatar 
-                style={{ backgroundColor: '#1890ff', width: 32, height: 32 }} 
+                className={styles['user-avatar']}
                 size={32}
               >
-                {displayName.charAt(0)?.toUpperCase() || '用'}
+                <IconUser style={{ fontSize: '18px' }}/>
               </Avatar>
-              <span style={{ color: '#333', fontSize: '14px' }}>{displayName}</span>
+              <div className={styles['user-name']}>
+                {displayName}
+              </div>
+              <div className={styles['dropdown-menu']}>
+                <div className={styles['dropdown-item']} onClick={handleLogout}>
+                  <IconCloseCircle  style={{ marginRight: '8px', fontSize: '14px' }}/>
+                  退出登录
+                </div>
+              </div>
             </div>
           ) : (
-            // 未登录状态
-            <Link to="/login" style={{ color: '#1890ff', textDecoration: 'none', fontSize: '14px' }}>
+            //{/* 未登录状态 */}
+            <Link to="/login" className={styles['login-link']}>
+              <IconUser style={{ marginRight: '8px', fontSize: '18px' }}/>
               立即登录
             </Link>
           )}

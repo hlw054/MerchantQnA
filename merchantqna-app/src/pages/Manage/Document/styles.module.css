@@ -1,0 +1,586 @@
+.manageContainer {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* 考虑导航栏高度 */
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.contentWrapper {
+  padding: 20px;
+}
+
+/* 操作按钮区域 */
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  background-color: #1966ff;;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.actionButton:hover {
+  background-color: #417ef8;
+}
+
+.actionButton:active {
+  background-color: #417ef8;
+}
+
+/* 一级标签容器 - 修改为flex布局，标签和文本在同一行 */
+.mainCategoryContainer {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+/* 二级标签容器 - 修改为flex布局，标签和文本在同一行 */
+.subCategoryContainer {
+  display: flex;
+}
+
+/* 区域标签 - 调整样式和间距 */
+.sectionLabel {
+  font-weight: 500;
+  color: #55585c;
+  margin-top: 3px;
+  margin-right: 16px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* 一级标签按钮组 */
+.mainCategories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* 一级标签按钮 - 调整为类似UI图中的样式，移除边框 */
+.mainCategoryButton {
+  padding: 4px 16px;
+  border: none;
+  color: #85878a;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.mainCategoryButton:hover {
+  color: #1966ff;
+}
+
+/* 选中的一级标签 - 蓝色背景白色文字 */
+.selectedMainCategory {
+  background-color: rgba(70,87,246,.1);
+  color: #1966ff;
+}
+
+/* 二级标签组 */
+.subCategories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* 文档管理部分容器 */
+.documentManagementSection {
+  width: 100%;
+  margin: 20px auto 0;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 知识库上传标题样式 */
+.sectionTitle {
+  margin: 0;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+/* 弹窗样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 480px;
+  max-width: 90%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.closeButton:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modalContent {
+  padding: 20px;
+}
+
+.modalFormGroup {
+  margin-bottom: 16px;
+}
+
+.modalFormGroup:last-child {
+  margin-bottom: 0;
+}
+
+.modalFormGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.modalInput,
+.modalSelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.modalInput:focus,
+.modalSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancelButton {
+  background-color: white;
+  color: #666;
+  border: 1px solid #d9d9d9;
+}
+
+.cancelButton:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.confirmButton {
+  background-color: #1890ff;
+  color: white;
+  border: 1px solid #1890ff;
+}
+
+.confirmButton:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* 搜索区域样式 */
+.searchContainer {
+  padding: 15px 20px;
+  border-radius: 8px;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.searchItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchItem label {
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.searchInput {
+  width: 200px;
+  padding: 6px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.dateInput {
+  padding: 6px 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.dateSeparator {
+  color: #666;
+  margin: 0 5px;
+}
+
+.statusSelect {
+  padding: 6px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.searchButtons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.searchButton,
+.resetButton {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.searchButton {
+  background-color: #1890ff;
+  color: white;
+}
+
+.searchButton:hover {
+  background-color: #40a9ff;
+}
+
+.resetButton {
+  background-color: white;
+  color: #666;
+  border: 1px solid #d9d9d9;
+}
+
+.resetButton:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* 文档操作按钮 */
+.documentActions {
+  padding: 10px 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.createButton,
+.batchDeleteButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.createButton {
+  background-color: #1890ff;
+  color: white;
+}
+
+.createButton:hover {
+  background-color: #40a9ff;
+}
+
+.batchDeleteButton {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.batchDeleteButton:hover:not(:disabled) {
+  background-color: #ff7875;
+}
+
+.batchDeleteButton:disabled {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+/* 表格样式 */
+.tableContainer {
+  margin: 15px 20px;
+  overflow-x: auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+}
+
+/* 分页容器样式 */
+.paginationContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+.documentTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.documentTable th,
+.documentTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 调整列宽 */
+.documentTable th:nth-child(2),
+.documentTable td:nth-child(2) {
+  width: 30%;
+  min-width: 200px;
+}
+
+.documentTable th:nth-child(3),
+.documentTable td:nth-child(3) {
+  width: 20%;
+}
+
+
+.documentTable th {
+  background-color: #fafafa;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.documentTable td {
+  font-size: 14px;
+  color: #333;
+}
+
+.documentTable tr:hover {
+  background-color: #fafafa;
+}
+
+/* 状态标签样式 */
+.statusEffective {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f6ffed;
+  color: #52c41a;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #b7eb8f;
+}
+
+.statusInvalid {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #ffccc7;
+}
+
+.statusPending {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #fffbe6;
+  color: #faad14;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #ffe58f;
+}
+
+/* 操作按钮样式 */
+.actionCells {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.actionIcon {
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+/* 详情按钮 - 蓝色 */
+.actionIcon:nth-child(1) {
+  color: #1890ff;
+}
+
+.actionIcon:nth-child(1):hover {
+  background-color: #e6f7ff;
+}
+
+/* 编辑按钮 - 黄色 */
+.actionIcon:nth-child(2) {
+  color: #faad14;
+}
+
+.actionIcon:nth-child(2):hover {
+  background-color: #fff7e6;
+}
+
+/* 删除按钮 - 红色 */
+.delete,
+.actionIcon:nth-child(3) {
+  color: #ff4d4f;
+  border: none;
+}
+
+.delete:hover,
+.actionIcon:nth-child(3):hover {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+}
+
+/* 空状态 */
+.emptyState {
+  text-align: center;
+  padding: 60px 0;
+  color: #999;
+}
+
+/* 分页样式 */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 标签删除图标样式 */
+.mainCategoryButton {
+  position: relative;
+  padding-right: 20px; /* 为右上角的删除图标预留空间 */
+}
+
+.labelDeleteIcon {
+  display: none;
+  position: absolute;
+  top: -6px;
+  right: 2px;
+  color: #85878a;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.mainCategoryButton:hover .labelDeleteIcon {
+  display: block;
+}
+
+.labelDeleteIcon:hover {
+  color: #ff4d4f;
+}

@@ -1,0 +1,501 @@
+/* 基础容器样式 */
+.homeContainer {
+  min-height: calc(100vh - 60px);
+  background-color: #fafafa;
+}
+
+/* 容器宽度与Header保持一致 */
+.heroContent,
+.statsSection,
+.featuresSection,
+.advantagesSection,
+.ctaSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 英雄区域样式 */
+.heroSection {
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  padding: 80px 0;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.heroTitle {
+  font-size: 48px !important;
+  font-weight: 600 !important;
+  margin-bottom: 20px !important;
+  color: white !important;
+}
+
+.heroSubtitle {
+  font-size: 20px !important;
+  margin-bottom: 40px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  max-width: 700px;
+}
+
+.heroActions {
+  margin-top: 8px;
+  display: flex;
+  gap: 20px;
+}
+
+.actionButton {
+  min-width: 120px;
+}
+
+/* 数据统计区域样式 */
+.statsSection {
+  margin-bottom: 40px;
+  padding: 60px 20px;
+  background-color: #ffffff;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.statItem {
+  width: 100%;
+}
+
+.statCard {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.statCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.statContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.statIcon {
+  font-size: 32px;
+}
+
+.statValue {
+  margin: 0 !important;
+}
+
+.statValue .arco-statistic-title {
+  color: #666 !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+}
+
+.statValue .arco-statistic-value {
+  color: #1890ff !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+/* 分隔线样式 */
+.divider {
+  max-width: 1200px;
+  margin: 40px auto;
+}
+
+/* 核心功能区域样式 */
+.featuresSection {
+  margin-bottom: 60px;
+  padding: 60px 20px;
+  background-color: #fafafa;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 24px;
+}
+
+.featureItem {
+  width: 100%;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 40px !important;
+  color: #1E1E1E !important;
+  font-size: 32px !important;
+  font-weight: 600 !important;
+}
+
+.featureCard {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.featureCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.featureContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+}
+
+.featureIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.featureDetails {
+  flex: 1;
+}
+
+.featureTitle {
+  margin-bottom: 12px !important;
+  color: #1E1E1E !important;
+  font-size: 20px !important;
+}
+
+.featureDescription {
+  color: #666 !important;
+  line-height: 1.8 !important;
+  margin-bottom: 16px !important;
+}
+
+.featureLink {
+  color: #1890ff !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+.featureLink:hover {
+  color: #40a9ff !important;
+}
+
+/* 平台优势区域样式 */
+.advantagesSection {
+  margin-bottom: 60px;
+}
+
+.advantagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.advantageItem {
+  text-align: center;
+  padding: 32px 24px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.advantageItem:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.advantageIcon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.advantageTitle {
+  margin-bottom: 12px !important;
+  color: #1E1E1E !important;
+  font-size: 18px !important;
+}
+
+.advantageDescription {
+  color: #666 !important;
+  line-height: 1.8 !important;
+}
+
+/* 号召性行动区域样式 */
+.ctaSection {
+  margin-bottom: 60px;
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ctaContent {
+  padding: 40px;
+  text-align: center;
+}
+
+.ctaTitle {
+  color: #1890ff !important;
+  margin-bottom: 16px !important;
+  font-size: 28px !important;
+}
+
+.ctaDescription {
+  color: #666 !important;
+  margin-bottom: 32px !important;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ctaButton {
+  min-width: 160px;
+}
+
+/* 动画效果 */
+.heroSection,
+.featuresSection,
+.advantagesSection{
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animateIn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 延迟动画 */
+.statsSection.animateIn {
+  transition-delay: 0.2s;
+}
+
+.featuresSection.animateIn {
+  transition-delay: 0.3s;
+}
+
+.advantagesSection.animateIn {
+  transition-delay: 0.2s;
+}
+
+/* 增强交互效果 */
+
+/* 按钮悬停效果 */
+.actionButton,
+.ctaButton {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  z-index: 1;
+}
+
+.actionButton::before,
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+
+.actionButton:hover::before,
+.ctaButton:hover::before {
+  left: 100%;
+}
+
+.actionButton:hover,
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3) !important;
+}
+
+/* 统计卡片数字动画 */
+.statValue .arco-statistic-value {
+  transition: all 0.5s ease;
+  display: inline-block;
+}
+
+.statCard:hover .statValue .arco-statistic-value {
+  transform: scale(1.05);
+  color: #40a9ff !important;
+}
+
+/* 卡片微交互动画 */
+.featureCard,
+.statCard,
+.advantageItem,
+.ctaCard {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.featureCard::after,
+.statCard::after,
+.advantageItem::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background: linear-gradient(to bottom, #1890ff, #722ed1);
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.featureCard:hover::after,
+.statCard:hover::after,
+.advantageItem:hover::after {
+  height: 100%;
+}
+
+/* 链接交互效果 */
+.featureLink {
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.featureLink::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #1890ff;
+  transition: width 0.3s ease;
+}
+
+.featureLink:hover::after {
+  width: 100%;
+}
+
+.featureLink:hover {
+  transform: translateX(4px);
+}
+
+/* 图标呼吸动画 */
+.statIcon,
+.advantageIcon {
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* 滚动到顶部按钮样式 */
+.scrollToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: translateY(20px);
+  z-index: 1000;
+}
+
+.scrollToTop.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scrollToTop:hover {
+  background-color: #40a9ff;
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 6px 20px rgba(24, 144, 255, 0.5);
+}
+
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 32px !important;
+  }
+  
+  .heroSubtitle {
+    font-size: 16px !important;
+  }
+  
+  .heroActions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .featureContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .advantagesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ctaContent {
+    padding: 32px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 60px 0;
+  }
+  
+  .heroTitle {
+    font-size: 28px !important;
+  }
+  
+  .sectionTitle {
+    font-size: 24px !important;
+  }
+}
