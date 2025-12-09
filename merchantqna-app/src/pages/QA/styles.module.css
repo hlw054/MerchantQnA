@@ -286,6 +286,7 @@
   align-items: center;
   overflow-y: scroll;
   padding: 20px;
+  scroll-behavior: smooth;
 }
 
 /* 聊天内容占位符 */
@@ -392,6 +393,53 @@
   max-width: 1000px;
   margin: 0 auto;
   margin-bottom: 20px;
+  position: relative;
+}
+
+/* 滚动到最底部按钮 */
+.scrollToBottomButton {
+  position: absolute;
+  bottom: calc(100% + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.scrollToBottomButton.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scrollToBottomButton svg {
+  color: #666;
+  font-size: 18px;
+}
+
+/* 淡入上移动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 }
 
 /* AI生成内容提示 */
@@ -443,19 +491,106 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* 助手消息功能图标区域 */
+.assistantActions {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  color: #999999;
+  font-size: 14px;
+}
+
+/* 功能图标悬停效果 */
+.assistantActions svg:hover {
+  color: #40a9ff;
+  transition: color 0.2s ease;
+}
+
 /* 自定义链接样式 */
+.linkWrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .customLink {
-  color: #165DFF;
+  color: #666666; /* 灰色字体 */
+  background-color: #f0f0f0; /* 浅灰打底 */
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 2px 6px; /* 适当的内边距 */
+  border-radius: 10px; /* 瘦椭圆型 */
+  font-size: 12px; /* 字体偏小 */
+  line-height: 1.4;
+  cursor: pointer;
 }
 
 .customLink:hover {
-  color: #4080FF;
-  text-decoration: underline;
+  color: #333333; /* 悬停时颜色加深 */
+  background-color: #e0e0e0; /* 悬停时背景色加深 */
+  text-decoration: none; /* 取消下划线 */
+}
+
+/* 链接Hover浮窗 */
+.linkTooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 300px;
+  max-width: 90vw;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* 浮窗标题样式 */
+.tooltipTitle {
+  color: #222222;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 浮窗路径样式 */
+.tooltipPath {
+  color: #222222; /* 颜色加深 */
+  font-weight: 600;
+  font-size: 13px; /* 字体增大 */
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  max-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* 只显示一行 */
+  opacity: 1;
+}
+
+/* 浮窗内容样式 */
+.tooltipContent {
+  color: #333333;
+  max-height: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 
 .linkIcon {

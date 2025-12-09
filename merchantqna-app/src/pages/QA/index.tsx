@@ -4,44 +4,154 @@ import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
-import { IconMenuFold, IconMessage, IconEdit, IconDelete, IconMenuUnfold, IconSearch, IconTiktokColor, IconImport, IconUser, IconSend, IconSync } from '@arco-design/web-react/icon';
-import { Message } from '@arco-design/web-react';
-import { getChatListByUserId, createChat, deleteChat, getChatMessages } from '../../api/chatService';
+import { IconMenuFold, IconMessage, IconEdit, IconDelete, IconMenuUnfold, IconSearch, IconTiktokColor, IconImport, IconUser, IconSend, IconSync, IconCopy, IconThumbUp, IconThumbDown, IconRefresh, IconDown } from '@arco-design/web-react/icon';
+import { Message, Modal } from '@arco-design/web-react';
+import { getChatListByUserId, createChat, deleteChat, getChatMessages, executeChatQueryPhase1, executeChatQueryPhase2, deleteMessageById } from '../../api/chatService';
 import type { Message as ChatMessage } from '../../api/chatService';
 
 // 自定义链接组件
-const CustomLink = ({ href, children, ...props }: { href?: string; children: React.ReactNode; [key: string]: any }) => {
+const CustomLink = ({ href, children, mergedResults, ...props }: { href?: string; children?: React.ReactNode; mergedResults?: any[]; [key: string]: any }) => {
   // 判断是否为内部链接（以#开头）或外部链接
   const isInternalLink = href && typeof href === 'string' && href.startsWith('#');
   
-  // 内部链接处理逻辑
-  const handleInternalClick = (e: React.MouseEvent) => {
+  // 浮窗状态管理
+  const [isHovered, setIsHovered] = useState(false);
+  const [hoverInfo, setHoverInfo] = useState<{ title?: string; displayPath?: string; content?: string }>({});
+  
+  // 提取数字并删除汉字的函数
+  const extractNumbers = (text: string) => {
+    // 使用正则表达式匹配所有数字
+    const numbers = text.match(/\d+/g);
+    // 如果有数字，将它们连接起来，否则返回原文本
+    return numbers ? numbers.join('') : text;
+  };
+  
+  // 处理children，提取数字
+  const processedChildren = typeof children === 'string' 
+    ? extractNumbers(children)
+    : children;
+  
+  // 鼠标进入事件处理
+  const handleMouseEnter = () => {
+    if (typeof children === 'string' && mergedResults) {
+      const indexStr = extractNumbers(children);
+      const index = parseInt(indexStr, 10);
+      
+      if (!isNaN(index) && mergedResults[index - 1]) {
+        const resultObj = mergedResults[index - 1];
+        const { metadata, content } = resultObj;
+        
+        if (metadata?.path) {
+          let cleanContent = content || '';
+          
+          // 去除content前面的path部分（如果存在）
+          if (cleanContent.startsWith(metadata.path)) {
+            cleanContent = cleanContent.substring(metadata.path.length).trim();
+            // 如果去除后内容以换行或标点开头，也一并去除
+            cleanContent = cleanContent.replace(/^[\s\n\r\-:\u2014]+/, '');
+          }
+          
+          // 截取content为100字
+          const truncatedContent = cleanContent.substring(0, 100) + (cleanContent.length > 100 ? '...' : '');
+          
+          // 分割path为title和去除title后的路径
+          const pathParts = metadata.path.split('-');
+          const title = pathParts[0] || '';
+          
+          // 生成去除title后的路径（如果有多个部分）
+          const displayPath = pathParts.length > 1 
+            ? pathParts.slice(1).join('-') 
+            : '';
+          
+          setHoverInfo({
+            title,
+            displayPath,
+            content: truncatedContent
+          });
+          setIsHovered(true);
+        }
+      }
+    }
+  };
+  
+  // 鼠标离开事件处理
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setHoverInfo({});
+  };
+  
+  // 链接点击处理逻辑
+  const handleLinkClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (href && typeof href === 'string') {
+    
+    console.log('点击链接:', href, children, mergedResults);
+    if (isInternalLink && href && typeof href === 'string') {
+      // 内部链接处理
       const targetId = href.substring(1);
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    } else if (typeof children === 'string' && mergedResults) {
+      // 外部链接处理 - 构建规则页面跳转URL
+      const indexStr = extractNumbers(children);
+      const index = parseInt(indexStr, 10);
+      
+      if (!isNaN(index) && mergedResults[index - 1]) {
+        const resultObj = mergedResults[index - 1];
+        const { knowledgeId, metadata } = resultObj;
+        
+        if (knowledgeId && metadata?.path) {
+          // 处理path：去掉第一个元素
+          const pathParts = metadata.path.split('-');
+          if (pathParts.length > 1) {
+            pathParts.shift(); // 去掉第一个元素
+            const adjustedPath = pathParts.join('-');
+            
+            // 构建跳转URL
+            const rulesUrl = `/rules/${knowledgeId}?path=${encodeURIComponent(adjustedPath)}`;
+            window.open(rulesUrl, '_blank');
+          }
+        }
+      }
     }
   };
 
+  // 当mergedResults为空或未定义时，只显示文本内容，不显示超链接
+  const shouldShowLink = mergedResults && mergedResults.length > 0;
+
+  if (!shouldShowLink) {
+    return '';
+  }
+
   return (
-    <a 
-      href={href} 
-      className={styles.customLink}
-      target={isInternalLink ? '_self' : '_blank'} 
-      rel={isInternalLink ? 'noopener noreferrer' : 'noopener noreferrer'} 
-      onClick={isInternalLink ? handleInternalClick : handleInternalClick}
-      {...props}
-    >
-      {children}
-      {!isInternalLink && (
-        <svg width="12" height="12" viewBox="0 0 12 12" className={styles.linkIcon}>
-          <path fill="currentColor" d="M4.5 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4.5 1zm5.5 1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h2.586L4.707 4.293a.5.5 0 0 0 .708.708L7 3.707V6a.5.5 0 0 0 1 0V3h2z"/>
-        </svg>
+    <div className={styles.linkWrapper}>
+      <a 
+        href={href} 
+        className={styles.customLink}
+        target={isInternalLink ? '_self' : '_blank'} 
+        rel={isInternalLink ? 'noopener noreferrer' : 'noopener noreferrer'} 
+        onClick={handleLinkClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        {...props}
+      >
+        {processedChildren}
+      </a>
+      
+      {/* Hover浮窗 */}
+      {isHovered && hoverInfo.title && (hoverInfo.displayPath || hoverInfo.content) && (
+        <div className={styles.linkTooltip}>
+          <div className={styles.tooltipTitle}>{hoverInfo.title}</div>
+          {hoverInfo.displayPath && (
+            <div className={styles.tooltipPath}>{hoverInfo.displayPath}</div>
+          )}
+          {hoverInfo.content && (
+            <div className={styles.tooltipContent}>{hoverInfo.content}</div>
+          )}
+        </div>
       )}
-    </a>
+    </div>
   );
 };
 
@@ -161,6 +271,19 @@ const QA: React.FC = () => {
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   // 思考时长（秒）
   const [thinkingDuration, setThinkingDuration] = useState<number>(0);
+  // 发送按钮loading状态
+  const [isSending, setIsSending] = useState(false);
+  // 聊天内容区域引用，用于自动滚动
+  const chatContentRef = useRef<HTMLDivElement>(null);
+  // 点赞状态管理
+  const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set());
+  // 点踩状态管理
+  const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set());
+  // 思考阶段状态
+  const [thinkingPhase, setThinkingPhase] = useState<'initial' | 'retrieving' | 'generating' | 'complete'>('initial');
+  
+  // 滚动到最底部按钮可见性状态
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   // 获取聊天列表
   useEffect(() => {
@@ -242,7 +365,8 @@ const QA: React.FC = () => {
           id: msg.messageId,
           content: msg.content,
           sender: msg.role === 'user' ? 'user' : 'assistant',
-          timestamp: msg.sendTime
+          timestamp: msg.sendTime,
+          mergedResults: msg.mergedResults,
         }));
 
         // 更新消息列表
@@ -308,6 +432,7 @@ const QA: React.FC = () => {
             return { id: remainingChats[0].chatId, title: remainingChats[0].chatTitle };
           } else {
             // 没有剩余聊天时，设置为空状态
+            setChatMessages([]);
             return { id: null, title: '新对话' };
           }
         });
@@ -326,7 +451,10 @@ const QA: React.FC = () => {
 
   // 处理发送消息
   const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isSending) return;
+    
+    // 设置发送中状态
+    setIsSending(true);
     
     // 创建新消息
     const newMessage = {
@@ -342,7 +470,8 @@ const QA: React.FC = () => {
       id: assistantMessageId,
       content: '',
       sender: 'assistant',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      mergedResults: [] // 用于存储检索结果
     };
     
     // 添加到消息列表（用户消息和空的助手消息）
@@ -354,28 +483,47 @@ const QA: React.FC = () => {
       chatInputRef.current.style.height = 'auto';
     }
     
+    // 发送新消息后隐藏滚动按钮
+    setShowScrollToBottom(false);
+    
+    // 重置思考阶段
+    setThinkingPhase('retrieving');
+    
     // 将当前消息列表转换为sendChatQuery所需的格式
     const history: ChatMessage[] = []
 
     // 使用用户提供的简单流式请求方式获取回答
     const fetchStreamData = async (currentChatId: string) => {
       try {
-        // 使用与request.ts相同的baseURL配置
-        const baseURL = import.meta.env.VITE_API_BASE;
-        
         // 确保有chatId
         if (!currentChatId) {
           throw new Error('聊天会话ID不存在');
         }
         
-        const response = await fetch(`${baseURL}/chat/query`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-          },
-          body: JSON.stringify({ query: inputValue.trim(), history, chatId: currentChatId })
+        // 第一阶段：执行检索
+        setThinkingPhase('retrieving');
+        const phase1Result = await executeChatQueryPhase1(inputValue.trim(), currentChatId);
+        console.log('第一阶段结果:', phase1Result);
+        
+        // 将检索结果存储到助手消息中
+        setChatMessages(prev => {
+          const updatedMessages = [...prev];
+          const assistantIndex = updatedMessages.findIndex(msg => msg.id === assistantMessageId);
+          if (assistantIndex !== -1) {
+            updatedMessages[assistantIndex].mergedResults = phase1Result.mergedResults;
+          }
+          return updatedMessages;
         });
+        
+        // 第二阶段：生成回答
+        setThinkingPhase('generating');
+        const response = await executeChatQueryPhase2(
+          inputValue.trim(),
+          currentChatId,
+          history,
+          phase1Result.optimizedQuery,
+          phase1Result.mergedResults
+        );
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -430,7 +578,8 @@ const QA: React.FC = () => {
                 } else if (data.type === 'complete') {
                   // 处理完成事件
                   console.log('流式输出完成', data);
-                  // 如果需要，可以在这里添加完成后的处理逻辑
+                  // 设置思考阶段为完成
+                  setThinkingPhase('complete');
                 }
               } catch (jsonError) {
                 console.error('JSON解析错误:', jsonError, jsonStr);
@@ -438,8 +587,31 @@ const QA: React.FC = () => {
             }
           }
         }
+        
+        // 所有流式数据读取完毕后，重新获取完整的消息列表以确保数据一致性
+        if (currentChatId) {
+          try {
+            const messages = await getChatMessages(currentChatId);
+            // 转换消息格式，确保与现有渲染逻辑兼容
+            const formattedMessages = messages.map((msg: any) => ({
+              id: msg.messageId,
+              content: msg.content,
+              sender: msg.role === 'user' ? 'user' : 'assistant',
+              timestamp: msg.sendTime,
+              mergedResults: msg.mergedResults,
+            }));
+            // 更新消息列表
+            setChatMessages(formattedMessages);
+          } catch (error) {
+            console.error('重新获取消息列表失败:', error);
+            // 失败时不影响用户体验，保持本地消息列表不变
+          }
+        }
 
         console.log('流式输出完成');
+        // 发送完成，重置状态
+        setIsSending(false);
+        setThinkingPhase('complete');
       } catch (error) {
         console.error('流式输出错误:', error);
         Message.error('获取回答失败，请重试');
@@ -453,6 +625,10 @@ const QA: React.FC = () => {
           }
           return updatedMessages;
         });
+        
+        // 发送失败，重置状态
+        setIsSending(false);
+        setThinkingPhase('complete');
       }
     };
 
@@ -484,6 +660,9 @@ const QA: React.FC = () => {
             }
             return updatedMessages;
           });
+          
+          // 创建对话失败，重置发送状态
+          setIsSending(false);
         });
     } else if (selectedChat.id) {
       // 已有聊天会话，直接调用流式请求
@@ -501,6 +680,9 @@ const QA: React.FC = () => {
         }
         return updatedMessages;
       });
+      
+      // 未登录，重置发送状态
+      setIsSending(false);
     }
   };
 
@@ -518,13 +700,11 @@ const QA: React.FC = () => {
   useEffect(() => {
     let timer: number | null = null;
     
-    // 检查是否有正在思考的助手消息
-    const hasEmptyAssistantMessage = chatMessages.some(msg => 
-      msg.sender === 'assistant' && msg.content === ''
-    );
+    // 检查是否处于思考阶段（retrieving或generating）
+    const isThinking = thinkingPhase === 'retrieving' || thinkingPhase === 'generating';
     
-    if (hasEmptyAssistantMessage) {
-      // 如果有正在思考的消息，但还没有开始计时，设置开始时间
+    if (isThinking) {
+      // 如果正在思考，但还没有开始计时，设置开始时间
       if (!thinkingStartTime) {
         setThinkingStartTime(Date.now());
       }
@@ -536,8 +716,8 @@ const QA: React.FC = () => {
           setThinkingDuration(duration);
         }
       }, 1000);
-    } else {
-      // 如果没有正在思考的消息，重置计时
+    } else if (thinkingPhase === 'complete') {
+      // 如果思考完成，重置计时
       setThinkingStartTime(null);
       setThinkingDuration(0);
     }
@@ -548,7 +728,39 @@ const QA: React.FC = () => {
         window.clearInterval(timer);
       }
     };
-  }, [chatMessages, thinkingStartTime]);
+  }, [chatMessages, thinkingStartTime, thinkingPhase]);
+
+  // 监听聊天消息变化，自动滚动到底部
+  useEffect(() => {
+    if (chatContentRef.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+      setShowScrollToBottom(false); // 滚动到底部后隐藏按钮
+    }
+  }, [chatMessages]);
+  
+  // 监听滚动事件，控制滚动到最底部按钮的显示/隐藏
+  useEffect(() => {
+    const handleScroll = () => {
+      if (chatContentRef.current) {
+        // 计算当前滚动位置距离底部的距离
+        const distanceFromBottom = chatContentRef.current.scrollHeight - chatContentRef.current.scrollTop - chatContentRef.current.clientHeight;
+        // 当距离底部超过100px时显示按钮
+        const scrollThreshold = 100;
+        setShowScrollToBottom(distanceFromBottom > scrollThreshold);
+      }
+    };
+    
+    if (chatContentRef.current) {
+      chatContentRef.current.addEventListener('scroll', handleScroll);
+    }
+    
+    // 清理函数
+    return () => {
+      if (chatContentRef.current) {
+        chatContentRef.current.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   return (
     <div style={{ 
@@ -699,7 +911,7 @@ const QA: React.FC = () => {
         </div>
             
             {/* 聊天内容区域 */}
-        <div className={styles.chatContent}>
+        <div className={styles.chatContent} ref={chatContentRef}>
           {/* 当selectedChat存在（包括临时的新对话状态）时，显示聊天容器 */}
           <div className={styles.chatContainer}>
             {/* 空聊天状态 */}
@@ -748,16 +960,128 @@ const QA: React.FC = () => {
                                     color: 'var(--color-text-3)',
                                     fontStyle: 'italic'
                                   }}>
-                                    正在思考中... {thinkingDuration}秒
+                                    {thinkingPhase === 'retrieving' && '正在获取相关文档... '}
+                                    {thinkingPhase === 'generating' && (
+                                      <>已获取 {message.mergedResults?.length || 0} 篇相关文档，正在生成回答... </>
+                                    )}
+                                    {thinkingDuration}秒
                                   </span>
                                 </div>
                               )}
                           {/* 渲染助手消息内容 */}
                           <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]} 
-                            rehypePlugins={[rehypeSlug]} 
-                            components={components}
-                          >{message.content}</ReactMarkdown>
+            remarkPlugins={[remarkGfm]} 
+            rehypePlugins={[rehypeSlug]} 
+            components={{...components, a: (props) => <CustomLink {...props} mergedResults={message.mergedResults} />}}
+          >{message.content}</ReactMarkdown>
+                          
+                          {/* 助手消息功能图标 */}
+                          <div className={styles.assistantActions}>
+                            {/* 复制功能 */}
+                            <IconCopy 
+                              style={{ fontSize: 18, marginRight: 16, cursor: 'pointer' }}
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content);
+                                Message.success('已复制到剪贴板');
+                              }}
+                            />
+                            
+                            {/* 点赞功能 */}
+                            <IconThumbUp 
+                              style={{
+                                fontSize: 18,
+                                marginRight: 16, 
+                                cursor: 'pointer',
+                                color: likedMessages.has(message.id) ? '#165DFF' : 'inherit'
+                              }}
+                              onClick={() => {
+                                setLikedMessages(prev => {
+                                  const newSet = new Set(prev);
+                                  if (newSet.has(message.id)) {
+                                    newSet.delete(message.id);
+                                  } else {
+                                    newSet.add(message.id);
+                                    // 如果点了赞，就取消点踩
+                                    setDislikedMessages(prevDisliked => {
+                                      const newDislikedSet = new Set(prevDisliked);
+                                      newDislikedSet.delete(message.id);
+                                      return newDislikedSet;
+                                    });
+                                  }
+                                  return newSet;
+                                });
+                                Message.success('已点赞');
+                              }}
+                            />
+                            
+                            {/* 点踩功能 */}
+                            <IconThumbDown 
+                              style={{
+                                fontSize: 18,
+                                marginRight: 16, 
+                                cursor: 'pointer',
+                                color: dislikedMessages.has(message.id) ? '#165DFF' : 'inherit'
+                              }}
+                              onClick={() => {
+                                setDislikedMessages(prev => {
+                                  const newSet = new Set(prev);
+                                  if (newSet.has(message.id)) {
+                                    newSet.delete(message.id);
+                                  } else {
+                                    newSet.add(message.id);
+                                    // 如果点了踩，就取消点赞
+                                    setLikedMessages(prevLiked => {
+                                      const newLikedSet = new Set(prevLiked);
+                                      newLikedSet.delete(message.id);
+                                      return newLikedSet;
+                                    });
+                                  }
+                                  return newSet;
+                                });
+                                Message.success('已点踩');
+                              }}
+                            />
+                            
+                            {/* 重新生成功能 - 只在最后一条助手消息显示 */}
+                          {chatMessages.indexOf(message) === chatMessages.length - 1 && (
+                            <IconRefresh 
+                              style={{ fontSize: 18, cursor: 'pointer' }}
+                              onClick={async () => {
+                                // 找到当前回答对应的问题索引
+                                const currentIndex = chatMessages.indexOf(message);
+                                if (currentIndex > 0) {
+                                  // 获取问题消息
+                                  const questionMessage = chatMessages[currentIndex - 1];
+                                  if (questionMessage.sender === 'user') {
+                                    // 确认重新生成
+                                    Modal.confirm({
+                                      title: '确认重新生成',
+                                      content: '确定要重新生成回答吗？这将删除当前的回答和问题。',
+                                      onOk: async () => {
+                                        try {
+                                          // 调用API删除问题和回答
+                                          await Promise.all([
+                                            deleteMessageById(questionMessage.id),
+                                            deleteMessageById(message.id)
+                                          ]);
+                                          // 更新本地状态
+                                          const newMessages = chatMessages.filter((_, idx) => idx !== currentIndex - 1 && idx !== currentIndex);
+                                          setChatMessages(newMessages);
+                                          // 将问题内容复制到输入框
+                                          setInputValue(questionMessage.content);
+                                          Message.success('已删除当前问答，您可以重新生成');
+                                        } catch (error) {
+                                          console.error('删除消息失败:', error);
+                                          Message.error('删除消息失败，请稍后重试');
+                                        }
+                                      },
+                                    });
+                                  }
+                                }
+                              }}
+                            />
+                          )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -772,6 +1096,15 @@ const QA: React.FC = () => {
         {/* 聊天输入框 */}
         {selectedChat && (
           <div className={styles.inputContainer}>
+            {/* 滚动到最底部按钮 */}
+            <div className={`${styles.scrollToBottomButton} ${showScrollToBottom ? styles.visible : ''}`} onClick={() => {
+              if (chatContentRef.current) {
+                chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+                setShowScrollToBottom(false); // 滚动到底部后隐藏按钮
+              }
+            }}>
+              <IconDown />
+            </div>
             <div className={`${styles.inputWrapper} ${inputValue.trim() ? styles.inputWrapperActive : ''}`}>
               <textarea
                 ref={chatInputRef}
@@ -798,9 +1131,9 @@ const QA: React.FC = () => {
                 <button 
                   className={`${styles.sendButton} ${inputValue.trim() ? styles.sendButtonActive : ''}`}
                   onClick={handleSendMessage}
-                  disabled={!inputValue.trim()}
+                  disabled={!inputValue.trim() || isSending}
                 >
-                  <IconSend />
+                  {isSending ? <IconSync spin /> : <IconSend />}
                 </button>
               </div>
             </div>

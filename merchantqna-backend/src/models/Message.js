@@ -36,6 +36,12 @@ const Message = sequelize.define('Message', {
     allowNull: false,
     field: 'send_time'
   },
+  mergedResults: {
+    type: DataTypes.JSON,
+    defaultValue: [],
+    allowNull: false,
+    field: 'merged_results'
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

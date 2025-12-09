@@ -479,18 +479,22 @@ function buildRAGPrompt(searchResults, history, query) {
     // 构建提示词模板
     let prompt = '';
     
-    // 1. 系统提示词部分
-    prompt += `你是一个专业的客户服务助手，负责根据提供的知识文档回答用户问题。`;
-    prompt += `请严格基于以下参考资料回答问题，不要添加参考资料中没有的信息。`;
-    prompt += `如果参考资料不包含足够的信息，请明确表示知识库中暂无，我无法回答该问题，而不是编造内容。`;
-    prompt += `如果参考资料中包含相关信息，请以markdown格式返回你的回答。`;
-    prompt += `并且使用超链接在对应文本后面返回参考资料的信息。参考超链接格式: [参考资料n](路径)`
+    // 1. 系统提示词部分（优化版本）
+    prompt += `你是一个专业的客户服务助手，负责基于提供的参考资料回答用户问题。`;
+    prompt += `请严格遵循以下要求：\n`;
+    prompt += `1. 回答必须完全基于参考资料内容，不得添加任何参考资料中未提及的信息。\n`;
+    prompt += `2. 若参考资料中没有足够信息回答问题，请明确表示："知识库中暂无相关信息，我无法回答该问题"。\n`;
+    prompt += `3. 回答要专业、准确，使用与用户一致的语言。\n`;
+    prompt += `4. 当参考资料支持你的回答时，在回答的最后添加一个参考资料链接。\n`;
+    prompt += `5. 参考资料链接格式要求：[参考资料X](Y)，其中X是参考资料的序号，Y是对应的knowledgeId。\n`;
+    prompt += `6. 参考资料不要写在一起，并且不要作为单独的一行\n`;
     
-    // 2. 参考资料部分
+    // 2. 参考资料部分（优化呈现方式）
     if (searchResults.length > 0) {
-      prompt += `\n## 参考资料\n`;
+      prompt += `## 参考资料\n`;
       searchResults.forEach((result, index) => {
-        if (result && result.content) {
+        console.log(result);
+        if (result && result.content && result.knowledgeId) {
           // 获取路径信息
           const path = result.metadata && result.metadata.path ? result.metadata.path : '未知路径';
           // 从content中移除path前缀
@@ -499,15 +503,16 @@ function buildRAGPrompt(searchResults, history, query) {
           if (cleanContent.startsWith(path)) {
             cleanContent = cleanContent.substring(path.length).trim();
           }
-          // 添加路径信息到参考资料中
-          const sourceInfo = `相关度：${result.relevanceScore.toFixed(2)}`;
-          const pathInfo = `路径: ${result.knowledgeId}-${path}`
-          const contentInfo = `内容: ${cleanContent}`
-          prompt += `[参考资料${index + 1}] ${sourceInfo} ${pathInfo}\n${contentInfo}\n`;
+          // 优化参考资料的呈现方式
+          prompt += `### 参考资料${index + 1}\n`;
+          prompt += `- 知识ID: ${result.knowledgeId}\n`;
+          prompt += `- 相关度: ${result.relevanceScore.toFixed(2)}\n`;
+          prompt += `- 标签: ${path}\n`;
+          prompt += `- 内容: ${cleanContent}\n\n`;
         }
       });
     } else {
-      prompt += `\n## 参考资料\n没有找到相关参考资料\n\n`;
+      prompt += `## 参考资料\n没有找到相关参考资料\n\n`;
     }
     
     // 3. 对话历史部分
@@ -525,11 +530,16 @@ function buildRAGPrompt(searchResults, history, query) {
     // 4. 当前问题部分
     prompt += `## 当前问题\n用户：${query.trim()}\n\n`;
     
-    // 5. 输出指示部分
-    prompt += `请根据上述参考资料和对话历史，以专业客服的身份回答用户的当前问题。\n`;
-    prompt += `请直接给出回答，不要添加额外的说明或问候语。\n`;
+    // 5. 输出指示部分（增强版本）
+    prompt += `请基于上述参考资料和对话历史，生成专业的回答：\n`;
+    prompt += `1. 直接给出回答，无需额外的问候或开场白。\n`;
+    prompt += `2. 保持回答的逻辑性和连贯性，使用自然的段落结构。\n`;
+    prompt += `3. 确保参考资料链接格式正确：[参考资料X](knowledgeId)\n`;
+    prompt += `4. 回答语言要与用户问题保持一致（用户使用中文则回答中文）。\n\n`;
     prompt += `回答：`;
-    console.log('RAG提示词构建完成', prompt);
+    
+    console.log('RAG提示词构建完成');
+    console.log(prompt);
 
     return prompt;
   } catch (error) {
@@ -539,28 +549,23 @@ function buildRAGPrompt(searchResults, history, query) {
 }
 
 /**
- * RAG查询主函数
- * 实现完整的检索增强生成流程，包括关键词提取、查询优化、向量检索、结果合并和流式输出
+ * RAG查询第一阶段
+ * 完成检索增强生成的前半部分流程，包括关键词提取、查询优化、向量检索和结果合并
  * 
  * @param {string} query - 用户原始查询
- * @param {Array<{role: string, content: string}>} history - 对话历史
- * @param {Function} onChunk - 流式输出回调函数
- * @returns {Promise<Object>} 查询结果
+ * @returns {Promise<Object>} 查询结果，包含优化后的查询和合并后的检索结果
  */
-async function ragQuery(query, history = [], onChunk = null) {
+async function ragQueryPhase1(query) {
   try {
     // 参数验证
     if (!query || typeof query !== 'string' || query.trim() === '') {
       throw new Error('查询内容不能为空');
     }
-    if (!Array.isArray(history)) {
-      throw new Error('对话历史必须是数组格式');
-    }
     
     // 设置默认检索结果数量限制
     const limit = 5;
     
-    console.log('开始RAG查询处理:', { query: query.substring(0, 50) + '...' });
+    console.log('开始RAG查询第一阶段处理:', { query: query.substring(0, 50) + '...' });
     
     // 1. 关键词提取
     console.log('提取查询关键词...');
@@ -592,6 +597,51 @@ async function ragQuery(query, history = [], onChunk = null) {
     // 4. 合并检索结果
     console.log('合并检索结果...');
     const mergedResults = mergeSearchResults(keywordResults, similarityResults);
+    
+    console.log('✅ RAG查询第一阶段完成');
+    
+    // 返回第一阶段的结果
+    return {
+      success: true,
+      optimizedQuery,
+      mergedResults,
+      sources: mergedResults.map(result => ({
+        id: result.id,
+        path: result.metadata?.path || '未知路径',
+        source: result.source,
+        relevanceScore: result.relevanceScore
+      }))
+    };
+  } catch (error) {
+    console.error('RAG查询第一阶段失败:', error);
+    throw new Error(`RAG查询第一阶段处理失败: ${error.message}`);
+  }
+}
+
+/**
+ * RAG查询第二阶段
+ * 接收第一阶段的结果，完成检索增强生成的后半部分流程，包括构建RAG提示词和获取流式输出
+ * 
+ * @param {string} optimizedQuery - 优化后的查询文本
+ * @param {Array} mergedResults - 合并后的检索结果
+ * @param {Array<{role: string, content: string}>} history - 对话历史
+ * @param {Function} onChunk - 流式输出回调函数
+ * @returns {Promise<Object>} 查询结果
+ */
+async function ragQueryPhase2(optimizedQuery, mergedResults, history = [], onChunk = null) {
+  try {
+    // 参数验证
+    if (!optimizedQuery || typeof optimizedQuery !== 'string' || optimizedQuery.trim() === '') {
+      throw new Error('优化后的查询内容不能为空');
+    }
+    if (!Array.isArray(mergedResults)) {
+      throw new Error('合并后的检索结果必须是数组格式');
+    }
+    if (!Array.isArray(history)) {
+      throw new Error('对话历史必须是数组格式');
+    }
+    
+    console.log('开始RAG查询第二阶段处理:');
     
     // 5. 构建RAG提示词
     console.log('构建RAG提示词...');
@@ -635,6 +685,45 @@ async function ragQuery(query, history = [], onChunk = null) {
       throw new Error(`LLM生成失败: ${error.message}`);
     }
   } catch (error) {
+    console.error('RAG查询第二阶段失败:', error);
+    throw new Error(`RAG查询第二阶段处理失败: ${error.message}`);
+  }
+}
+
+/**
+ * RAG查询主函数（兼容原有接口）
+ * 实现完整的检索增强生成流程，包括关键词提取、查询优化、向量检索、结果合并和流式输出
+ * 
+ * @param {string} query - 用户原始查询
+ * @param {Array<{role: string, content: string}>} history - 对话历史
+ * @param {Function} onChunk - 流式输出回调函数
+ * @returns {Promise<Object>} 查询结果
+ */
+async function ragQuery(query, history = [], onChunk = null) {
+  try {
+    // 参数验证
+    if (!query || typeof query !== 'string' || query.trim() === '') {
+      throw new Error('查询内容不能为空');
+    }
+    if (!Array.isArray(history)) {
+      throw new Error('对话历史必须是数组格式');
+    }
+    
+    console.log('开始完整RAG查询处理:', { query: query.substring(0, 50) + '...' });
+    
+    // 调用第一阶段获取检索结果
+    const phase1Result = await ragQueryPhase1(query);
+    
+    // 调用第二阶段完成生成
+    const phase2Result = await ragQueryPhase2(
+      phase1Result.optimizedQuery,
+      phase1Result.mergedResults,
+      history,
+      onChunk
+    );
+    
+    return phase2Result;
+  } catch (error) {
     console.error('RAG查询失败:', error);
     throw new Error(`RAG查询处理失败: ${error.message}`);
   }
@@ -650,6 +739,8 @@ module.exports = {
   extractKeywords,
   optimizeQuery,
   ragQuery,
+  ragQueryPhase1,
+  ragQueryPhase2,
   generateChatTitle,
   // 结果处理函数
   mergeSearchResults,

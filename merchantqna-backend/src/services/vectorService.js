@@ -413,6 +413,7 @@ async function searchVectors(queryVector, limit = 5, filter = null) {
       id: item.id,
       content: item.content,
       metadata: item.metadata,
+      knowledgeId: item.knowledgeId, // 确保返回knowledgeId字段
       similarity: item._distance, // LanceDB使用_distance字段存储相似度
       rank: index + 1
     }));
