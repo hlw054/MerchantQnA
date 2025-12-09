@@ -1,12 +1,6 @@
 # 依赖目录
 node_modules/
 
-# 环境变量文件
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # 日志文件
 logs
@@ -16,13 +10,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-# 环境变量文件
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # 构建输出
 dist
@@ -70,11 +57,6 @@ coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
-
-# Docker相关
-Dockerfile*
-docker-compose*.yml
-.docker/
 
 # 其他
 *.pem
