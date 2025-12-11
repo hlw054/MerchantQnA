@@ -7,6 +7,9 @@ WORKDIR /app
 # 复制package.json和package-lock.json文件
 COPY package*.json ./
 
+# 安装依赖
+RUN npm install
+
 # 复制项目文件
 COPY . .
 
@@ -14,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # 启动命令
-CMD ["npu run dev"]
+CMD ["npm", "run", "dev"]

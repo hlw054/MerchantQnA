@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './manageLayout.module.css';
-import { IconHome, IconBook, IconUser, IconSettings, IconTiktokColor, IconMenuFold, IconMenuUnfold, IconDown, IconFile, IconFolder, IconRotateLeft } from '@arco-design/web-react/icon';
+import { IconHome, IconBook, IconUser, IconTiktokColor, IconMenuFold, IconMenuUnfold, IconDown, IconFile, IconFolder, IconRotateLeft } from '@arco-design/web-react/icon';
 
 interface ManageLayoutProps {
   children: React.ReactNode;

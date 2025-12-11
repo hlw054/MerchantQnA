@@ -5,7 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # 构建输出目录
-dist/
 build/
 out/
 

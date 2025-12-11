@@ -8,8 +8,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # 构建输出
-dist
-dist-ssr
 *.local
 build/
 
@@ -56,8 +54,6 @@ pnpm-lock.yaml
 
 # 其他
 *.pem
-.env.*.local
-
 # TypeScript相关（可选）
 *.tsbuildinfo
 
