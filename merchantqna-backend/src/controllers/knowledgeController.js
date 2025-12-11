@@ -50,6 +50,57 @@ const getKnowledgeListByTags = async (req, res, next) => {
 };
 
 /**
+ * 通过id增加knowledge浏览数
+ * @param {Object} req - Express请求对象
+ * @param {Object} res - Express响应对象
+ * @param {Function} next - 下一个中间件
+ */
+const incrementKnowledgeViews = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // 验证ID是否存在
+    if (!id) {
+      return next(new AppError(400, '文档ID是必填的'));
+    }
+    
+    // 使用原始SQL查询增加浏览数，避免更新updatedAt
+    const { sequelize } = require('../config/database');
+    const result = await sequelize.query(
+      'UPDATE knowledge SET views = views + 1 WHERE id = ?',
+      { 
+        replacements: [id],
+        type: sequelize.QueryTypes.UPDATE
+      }
+    );
+    
+    if (result[1] === 0) {
+      return next(new AppError(404, '知识文档不存在'));
+    }
+    
+    // 获取更新后的浏览数
+    const updatedKnowledge = await sequelize.query(
+      'SELECT id, views FROM knowledge WHERE id = ?',
+      { 
+        replacements: [id],
+        type: sequelize.QueryTypes.SELECT,
+        plain: true
+      }
+    );
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        knowledge: updatedKnowledge
+      }
+    });
+  } catch (error) {
+    console.error('增加知识文档浏览数失败:', error);
+    return next(new AppError(500, '增加知识文档浏览数失败，请稍后重试'));
+  }
+};
+
+/**
  * 通过id获取knowledge实体
  * @param {Object} req - Express请求对象
  * @param {Object} res - Express响应对象
@@ -421,6 +472,7 @@ async function getKnowledgeRAGChunks(req, res, next) {
 module.exports = {
   getKnowledgeListByTags,
   getKnowledgeById,
+  incrementKnowledgeViews,
   createKnowledge,
   updateKnowledgeBasicInfo,
   updateKnowledgeContent,

@@ -26,7 +26,7 @@ const Header: React.FC = () => {
 
   const hasToken = localStorage.getItem('token');
   const userInfo = hasToken ? getUserInfo() : null;
-  const isRoot = userInfo?.role === 'root';
+  const isRoot = userInfo?.role === 'admin';
   // 获取显示名称：优先使用用户名，若无则使用账号名
   const displayName = userInfo?.account || '';
   
@@ -45,8 +45,7 @@ const Header: React.FC = () => {
     { key: 'home', label: '首页', path: '/' },
     { key: 'rules', label: '知识中心', path: '/rules' },
     { key: 'qa', label: '智能问答', path: '/qa' },
-    { key: 'manage', label: '进入管理端', path: '/manage/overview', show: true },
-    { key: 'dashboard', label: '智慧大屏', path: '/dashboard', show: isRoot },
+    { key: 'manage', label: '进入管理端', path: '/manage/overview', show: isRoot },
   ];
 
   return (

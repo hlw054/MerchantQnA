@@ -177,6 +177,26 @@ export const getChatMessages = async (chatId: string) => {
 }
 
 /**
+ * 执行聊天查询的第三阶段（更新被采纳的文档）
+ * @param messageId 消息ID
+ * @param result 被采纳的result数组
+ * @returns 更新结果
+ */
+export const executeChatQueryPhase3 = async (messageId: string, result: number[]): Promise<{status: string; message: string}> => {
+  try {
+    const response = await request.post(
+      '/chat/query/phase3',
+      { messageId, result }
+    );
+    console.log('第三阶段更新成功:', response);
+    return response.data;
+  } catch (error) {
+    console.error('第三阶段更新失败:', error);
+    throw error;
+  }
+}
+
+/**
  * 通过messageId删除单条消息
  * @param messageId 消息ID（必填）
  * @returns 删除结果
@@ -188,6 +208,34 @@ export const deleteMessageById = async (messageId: string) => {
     return response.data.data;
   } catch (error) {
     console.error('删除消息失败:', error);
+    throw error;
+  }
+}
+
+/**
+ * 通过chatId修改聊天标题
+ * @param chatId 聊天ID（必填）
+ * @param chatTitle 新的聊天标题（必填）
+ * @returns 更新后的聊天信息
+ */
+export const updateChatTitle = async (chatId: string, chatTitle: string) => {
+  try {
+    // 验证参数
+    if (!chatId) {
+      throw new Error('chatId不能为空');
+    }
+    if (!chatTitle || typeof chatTitle !== 'string' || chatTitle.trim() === '') {
+      throw new Error('chatTitle不能为空且必须是有效的字符串');
+    }
+
+    const response = await request.put(`/chat/${chatId}/title`, {
+      chatTitle: chatTitle.trim()
+    });
+    
+    console.log('修改聊天标题成功:', response);
+    return response.data.data.chat;
+  } catch (error) {
+    console.error('修改聊天标题失败:', error);
     throw error;
   }
 }

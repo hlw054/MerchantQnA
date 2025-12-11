@@ -6,6 +6,7 @@ const { AppError } = require('../middlewares/errorHandler');
 const { ragQuery, ragQueryPhase1, ragQueryPhase2, generateChatTitle } = require('../services/ragChainService');
 const { Chat, Message, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const { incrementChunkReference } = require('../services/dataService');
 
 // 生成唯一请求ID
 function generateRequestId() {
@@ -176,20 +177,14 @@ const handleChatQueryPhase2 = async (req, res, next) => {
     const timeoutId = setTimeout(() => {
       console.error(`[${requestId}] 请求处理超时`);
       if (!res.headersSent) {
-        res.write(`data: ${JSON.stringify({ type: 'error', content: '请求处理超时' })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: 'error', content: '请求处理超时' })}
+
+`);
         res.end();
       }
-      // 超时回滚事务（仅当事务存在且未提交时）
-      if (transaction && !transactionCommitted) {
-        try {
-          transaction.rollback();
-          console.log(`[${requestId}] 事务已回滚`);
-        } catch (rollbackError) {
-          // 忽略已经完成的事务回滚错误
-          console.log(`[${requestId}] 事务回滚失败（可能已完成）:`, rollbackError.message);
-        }
-      }
-    }, 60000); // 60秒超时
+      // 超时清理资源并回滚事务
+      cleanup(true);
+    }, 600000); // 600秒超时
     
     // 清理函数
     const cleanup = (errorOccurred = false) => {
@@ -227,6 +222,8 @@ const handleChatQueryPhase2 = async (req, res, next) => {
     // 调用ragQueryPhase2函数生成回答
     const result = await ragQueryPhase2(optimizedQuery, mergedResults, history, onChunk);
     console.log(`[${requestId}] ragQueryPhase2 结果:`, result);
+    
+    // 分块引用记录将在phase3中更新
     
     // 创建助手消息记录
     assistantMessage = await Message.create({
@@ -404,6 +401,8 @@ const handleChatQuery = async (req, res, next) => {
       onChunk
     );
     console.log(`[${requestId}] ragQueryPhase2 结果:`, result);
+    
+    // 分块引用记录将在phase3中更新
     
     // 创建助手消息记录
     assistantMessage = await Message.create({
@@ -644,7 +643,7 @@ const getMessagesByChatId = async (req, res, next) => {
       where: {
         chatId: chatId
       },
-      attributes: ['messageId', 'chatId', 'role', 'content', 'sendTime', 'mergedResults'],
+      attributes: ['messageId', 'chatId', 'role', 'content', 'sendTime', 'mergedResults', 'result'],
       order: [['sendTime', 'ASC']] // 按发送时间正序
     });
     
@@ -660,10 +659,95 @@ const getMessagesByChatId = async (req, res, next) => {
   }
 };
 
+/**
+ * 处理用户聊天查询第三阶段，更新消息的result字段
+ * @param {Object} req - Express请求对象
+ * @param {Object} res - Express响应对象
+ * @param {Function} next - 下一个中间件
+ */
+const handleChatQueryPhase3 = async (req, res, next) => {
+  // 生成请求ID用于日志跟踪
+  const requestId = generateRequestId();
+  console.log(`[${requestId}] 开始处理聊天请求第三阶段`);
+  
+  try {
+    const { messageId, result } = req.body;
+    
+    // 验证请求参数
+    if (!messageId || typeof messageId !== 'string') {
+      console.warn(`[${requestId}] 参数验证失败: messageId为空或格式错误`);
+      return next(new AppError(400, 'messageId不能为空'));
+    }
+    
+    if (!Array.isArray(result)) {
+      console.warn(`[${requestId}] 参数验证失败: result必须是数组`);
+      return next(new AppError(400, 'result必须是数组'));
+    }
+    
+    // 验证数组元素是否都是整数
+    const isAllIntegers = result.every(item => Number.isInteger(item));
+    if (!isAllIntegers) {
+      console.warn(`[${requestId}] 参数验证失败: result数组中的元素必须都是整数`);
+      return next(new AppError(400, 'result数组中的元素必须都是整数'));
+    }
+    
+    // 查询消息，获取mergedResults字段
+    const message = await Message.findOne({
+      where: { messageId },
+      attributes: ['mergedResults']
+    });
+    
+    if (!message) {
+      console.warn(`[${requestId}] 未找到对应的消息: ${messageId}`);
+      return next(new AppError(404, '未找到对应的消息'));
+    }
+    
+    // 更新消息的result字段
+    await Message.update(
+      { result },
+      { where: { messageId } }
+    );
+    
+    console.log(`[${requestId}] 成功更新消息的result字段: ${messageId}`);
+    
+    // 根据result数组中的索引，筛选出被采纳的分块并更新引用记录
+    if (Array.isArray(result) && result.length > 0 && Array.isArray(message.mergedResults)) {
+      try {
+        // 只处理被采纳的分块（根据result数组中的索引）
+        const adoptedChunks = result
+          .map(index => message.mergedResults[index])
+          .filter(chunk => chunk && chunk.id && chunk.knowledgeId);
+        
+        if (adoptedChunks.length > 0) {
+          await Promise.all(
+            adoptedChunks.map(async (chunk) => {
+              await incrementChunkReference(chunk.id, chunk.knowledgeId, chunk.metadata?.path || '');
+            })
+          );
+          console.log(`[${requestId}] 成功更新被采纳分块的引用记录:`, adoptedChunks.map(chunk => chunk.id));
+        }
+      } catch (referenceError) {
+        // 分块引用更新失败不影响主要功能，仅记录日志
+        console.error(`[${requestId}] 更新分块引用记录失败:`, referenceError);
+      }
+    }
+    
+    res.status(200).json({
+      status: 'success',
+      message: '消息result字段更新成功'
+    });
+    
+  } catch (error) {
+    console.error(`[${requestId}] 处理聊天查询第三阶段失败:`, error);
+    return next(new AppError(500, '处理失败，请稍后重试'));
+  }
+};
+
 module.exports = {
   handleChatQuery,
   handleChatQueryPhase1,
   handleChatQueryPhase2,
+  handleChatQueryPhase3,
   getChatListByUserId,
   getMessagesByChatId,
   createChatWithTitle,

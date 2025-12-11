@@ -247,6 +247,18 @@
   color: #333;
   margin-bottom: 8px;
   transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viewCountContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #999;
+  margin-left: auto;
 }
 
 .knowledgeItem:hover .knowledgeTitle {

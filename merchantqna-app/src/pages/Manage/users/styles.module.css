@@ -1,16 +1,192 @@
-.usersPage {
+.manageContainer {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* 考虑导航栏高度 */
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.container:hover {
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
+}
+
+.pageHeader {
+  margin: 0;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 区域标题样式 - 与其他管理页面保持一致 */
+.sectionTitle {
+  margin: 0;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tableContainer {
+  margin: 15px 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+/* 用户表格样式 */
+.userTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.userTable th,
+.userTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: white;
+}
+
+.userTable th {
+  background-color: #fafafa;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.userTable td {
+  font-size: 14px;
+  color: #333;
+}
+
+.userTable tr:hover {
+  background-color: #fafafa;
+}
+
+/* 操作单元格样式 */
+.actionCells {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* 操作按钮样式 */
+.actionIcon {
+  padding: 4px 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  color: #666;
+}
+
+.actionIcon:hover {
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.actionIcon.edit {
+  color: #1890ff;
+}
+
+.actionIcon.edit:hover {
+  color: #40a9ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+/* 状态样式 */
+.statusAdmin {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f6ffed;
+  color: #52c41a;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #b7eb8f;
+}
+
+.statusUser {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #fff2e8;
+  color: #fa8c16;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #ffd591;
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.modalContent {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 8px 0;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-h1 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 10px;
+/* 用户信息区域 */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
 }
 
-p {
+.userInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userInfoLabel {
   font-size: 14px;
   color: #666;
+  width: 80px;
+  white-space: nowrap;
+}
+
+.userInfoValue {
+  font-size: 14px;
+  color: #333;
+  font-weight: 400;
+}
+
+/* 角色选择区域 */
+.roleSelectContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roleSelectLabel {
+  font-size: 14px;
+  color: #333;
+  font-weight: 400;
 }

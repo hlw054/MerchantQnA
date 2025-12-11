@@ -4,6 +4,7 @@ import styles from './styles.module.css';
 import { Message, Input, Select, Modal, Pagination } from '@arco-design/web-react';
 import { getDocumentsByTags, uploadToRAG, removeFromRAG, viewDocumentChunks } from '../../../api/knowledgeService';
 import { getAllLabels } from '../../../api/labelService';
+import { getKnowledgeChunkReferences } from '../../../api/statsService';
 import type { Category } from '../../../api/labelService';
 import type { Document } from '../../../api/knowledgeService';
 
@@ -297,9 +298,21 @@ const RAGPage: React.FC = () => {
   const handleViewChunks = async (docId: string, docName: string) => {
     try {
       setShowChunksTree(false); // 先隐藏树状结构
-      const response = await viewDocumentChunks(docId);
-      // 确保数据结构符合要求
-      const { chunks } = response.data;
+      // 获取文档分块数据
+      const chunksResponse = await viewDocumentChunks(docId);
+      const { chunks } = chunksResponse.data;
+      
+      // 获取分块引用量数据
+      const referencesData = await getKnowledgeChunkReferences(docId);
+      
+      // 将引用量数据与分块数据关联
+      const chunksWithReferences = chunks.map((chunk: any) => {
+        const referenceInfo = referencesData.find(ref => ref.chunkId === chunk.id);
+        return {
+          ...chunk,
+          referenceCount: referenceInfo ? referenceInfo.referenceCount : 0
+        };
+      });
       
       // 更新状态
       setCurrentDocumentName(docName);
@@ -308,7 +321,7 @@ const RAGPage: React.FC = () => {
       
       // 延迟执行以确保DOM已渲染
       setTimeout(() => {
-        renderChunksTree(chunks, docId);
+        renderChunksTree(chunksWithReferences, docId);
       }, 100);
     } catch (error) {
       console.error('查看分块失败:', error);
@@ -346,10 +359,53 @@ const RAGPage: React.FC = () => {
       
       // 图表配置
       const option = {
+        legend: {
+          orient: 'vertical',
+          left: '5%',
+          top: 'center',
+          data: [
+            { name: '≥ 50 次引用', itemStyle: { color: '#ff4d4f' } },
+            { name: '20 - 49 次引用', itemStyle: { color: '#fa8c16' } },
+            { name: '10 - 19 次引用', itemStyle: { color: '#faad14' } },
+            { name: '1 - 9 次引用', itemStyle: { color: '#52c41a' } },
+            { name: '0 次引用', itemStyle: { color: '#d9d9d9' } }
+          ],
+          textStyle: {
+            fontSize: 12,
+            color: '#333'
+          },
+          itemWidth: 12,
+          itemHeight: 12,
+          itemGap: 15
+        },
         tooltip: {
           trigger: 'item',
           triggerOn: 'mousemove',
           formatter: (params: any) => {
+            // 构建tooltip内容
+            let tooltipContent = `<div style="padding: 12px; max-width: 600px; border-radius: 8px;">`;
+            
+            // 显示节点名称
+            tooltipContent += `<div style="margin-bottom: 8px; padding: 8px; background-color: #f0f9ff; border-radius: 4px;">`;
+            tooltipContent += `<span style="color: #1890ff; font-weight: bold; font-size: 12px;">名称:</span> `;
+            tooltipContent += `<span style="color: #333; font-size: 12px; line-height: 1.4;margin-left: 10px;">${params.data.name}</span>`;
+            tooltipContent += `</div>`;
+            
+            // 显示路径信息
+            if (params.data.path) {
+              tooltipContent += `<div style="margin-bottom: 8px; padding: 8px; background-color: #f0f9ff; border-radius: 4px;">`;
+              tooltipContent += `<span style="color: #1890ff; font-weight: bold; font-size: 12px;">路径:</span> `;
+              tooltipContent += `<span style="color: #333; font-size: 12px; line-height: 1.4;margin-left: 10px;">${params.data.path}</span>`;
+              tooltipContent += `</div>`;
+            }
+            
+            // 显示引用量 - 所有节点都显示
+            tooltipContent += `<div style="margin-top: 8px; padding: 8px; background-color: #fff2e8; border-radius: 4px;">`;
+            tooltipContent += `<span style="color: #fa8c16; font-weight: bold; font-size: 12px;">引用量:</span> `;
+            tooltipContent += `<span style="color: #333; font-size: 12px; margin-left: 10px;line-height: 1.4">${params.data.referenceCount || 0} 次</span>`;
+            tooltipContent += `</div>`;
+            
+            // 显示内容（如果有）
             if (params.data.value) {
               // 显示内容的前100个字符，支持换行
               const content = params.data.value.length > 100 
@@ -358,29 +414,15 @@ const RAGPage: React.FC = () => {
               // 替换换行符为<br/>以支持换行显示
               const formattedContent = content.replace(/\n/g, '<br/>');
               
-              // 构建tooltip内容
-              let tooltipContent = `<div style="padding: 12px; max-width: 600px; border-radius: 8px;">`;
-              
-              
-              // 显示路径信息
-              if (params.data.path) {
-                tooltipContent += `<div style="margin-bottom: 8px; padding: 8px; background-color: #f0f9ff; border-radius: 4px;">`;
-                tooltipContent += `<span style="color: #1890ff; font-weight: bold; font-size: 12px;">路径:</span> `;
-                tooltipContent += `<span style="color: #333; font-size: 12px; line-height: 1.4;margin-left: 10px;">${params.data.path}</span>`;
-                tooltipContent += `</div>`;
-              }
-              
-              // 显示内容
-              tooltipContent += `<div style="margin-top: 0;display: flex;padding:  8px;align-items: flex-start;">`;
+              tooltipContent += `<div style="margin-top: 8px;display: flex;padding:  8px;align-items: flex-start;">`;
               tooltipContent += `<div style="color: #1890ff; font-weight: bold; font-size: 12px;margin-top: 8px;">内容:</div>`;
               tooltipContent += `<div style="font-size: 13px; line-height: 1.5; color: #555; white-space: pre-wrap; word-break: break-word;margin-left: 10px;">${formattedContent}</div>`;
               tooltipContent += `</div>`;
-              
-              tooltipContent += `</div>`;
-              
-              return tooltipContent;
             }
-            return `<div style="padding: 8px; border-radius: 4px;"><strong style="color: #1890ff;">${params.data.name}</strong></div>`;
+            
+            tooltipContent += `</div>`;
+            
+            return tooltipContent;
           },
           backgroundColor: 'rgba(255, 255, 255, 0.98)',
           borderColor: '#e6f7ff',
@@ -395,99 +437,99 @@ const RAGPage: React.FC = () => {
           padding: 10
         },
         series: [
-          {
-            type: 'tree',
+            {
+              type: 'tree',
             data: [treeData],
             top: '10%',
             left: '20%',
             bottom: '10%',
             right: '20%',
-            symbolSize: (_value: any, params: any) => {
-              // 根据节点类型设置不同的大小
-              if (params.data.name === '内容') {
-                return 8;
-              }
-              if (params.data.name === '文档结构') {
-                return 14;
-              }
-              return 10;
-            },
-            symbol: (_value: any, params: any) => {
-              // 根据节点类型设置不同的图标
-              if (params.data.name === '内容') {
-                return 'rect';
-              }
-              return 'circle';
-            },
-            label: {
-              position: 'left',
-              verticalAlign: 'middle',
-              align: 'right',
-              fontSize: 14,
-              fontWeight: 'normal',
-              color: '#333',
-              formatter: (params: any) => {
-                // 不显示content节点的完整内容，只显示名称
-                if (params.data.name === 'content') {
-                  return '内容';
+              symbolSize: (_value: any, params: any) => {
+                // 根据节点类型设置不同的大小
+                if (params.data.name === '内容') {
+                  return 8;
                 }
-                return params.data.name;
+                if (params.data.name === '文档结构') {
+                  return 14;
+                }
+                return 10;
               },
-              padding: [0, 10, 0, 0],
-              rich: {
-                name: {
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: '#1890ff'
+              symbol: (_value: any, params: any) => {
+                // 根据节点类型设置不同的图标
+                if (params.data.name === '内容') {
+                  return 'rect';
                 }
-              }
-            },
-            leaves: {
+                return 'circle';
+              },
               label: {
-                position: 'right',
+                position: 'left',
                 verticalAlign: 'middle',
-                align: 'left',
-                fontSize: 13,
-                color: '#666',
+                align: 'right',
+                fontSize: 14,
+                fontWeight: 'normal',
+                color: '#333',
                 formatter: (params: any) => {
-                  // 只显示ID，不显示内容
+                  // 不显示content节点的完整内容，只显示名称
+                  if (params.data.name === 'content') {
+                    return '内容';
+                  }
                   return params.data.name;
                 },
-                padding: [0, 0, 0, 10]
-              }
-            },
-            emphasis: {
-              focus: 'descendant',
-              itemStyle: {
-                shadowBlur: 15,
-                shadowOffsetX: 0,
-                shadowOffsetY: 2,
-                shadowColor: 'rgba(24, 144, 255, 0.4)'
+                padding: [0, 10, 0, 0],
+                rich: {
+                  name: {
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: '#1890ff'
+                  }
+                }
               },
-              label: {
-                color: '#1890ff',
-                fontWeight: 'bold',
-                fontSize: 15,
-                textShadowBlur: 2,
-                textShadowColor: 'rgba(24, 144, 255, 0.5)'
-              }
-            },
-            expandAndCollapse: true,
-            lineStyle: {
-              width: 2.5,
-              type: 'curve',
-              color: '#e0e0e0',
-              curveness: 0.5
-            },
-            animationDuration: 700,
-            animationDurationUpdate: 900,
-            animationEasing: 'cubicOut',
-            animationEasingUpdate: 'cubicOut',
-            initialTreeDepth: initialDepth,
-            roam: true, // 启用缩放和平移
-            zoom: 1 // 初始缩放比例
-          }
-        ]
+              leaves: {
+                label: {
+                  position: 'right',
+                  verticalAlign: 'middle',
+                  align: 'left',
+                  fontSize: 13,
+                  color: '#666',
+                  formatter: (params: any) => {
+                    // 只显示ID，不显示内容
+                    return params.data.name;
+                  },
+                  padding: [0, 0, 0, 10]
+                }
+              },
+              emphasis: {
+                focus: 'descendant',
+                itemStyle: {
+                  shadowBlur: 15,
+                  shadowOffsetX: 0,
+                  shadowOffsetY: 2,
+                  shadowColor: 'rgba(24, 144, 255, 0.4)'
+                },
+                label: {
+                  color: '#1890ff',
+                  fontWeight: 'bold',
+                  fontSize: 15,
+                  textShadowBlur: 2,
+                  textShadowColor: 'rgba(24, 144, 255, 0.5)'
+                }
+              },
+              expandAndCollapse: true,
+              lineStyle: {
+                width: 2.5,
+                type: 'curve',
+                color: '#e0e0e0',
+                curveness: 0.5
+              },
+              animationDuration: 700,
+              animationDurationUpdate: 900,
+              animationEasing: 'cubicOut',
+              animationEasingUpdate: 'cubicOut',
+              initialTreeDepth: initialDepth,
+              roam: true, // 启用缩放和平移
+              zoom: 1 // 初始缩放比例
+            }
+          ]
       };
       
       // 设置图表配置
@@ -524,10 +566,35 @@ const RAGPage: React.FC = () => {
       return [];
     }
     
+    // 根据引用量获取颜色的函数
+    const getColorByReferenceCount = (count: number) => {
+      if (count >= 50) return '#ff4d4f'; // 高引用量 - 红色
+      if (count >= 20) return '#fa8c16'; // 中高引用量 - 橙色
+      if (count >= 10) return '#faad14'; // 中引用量 - 黄色
+      if (count >= 1) return '#52c41a'; // 低引用量 - 绿色
+      return '#d9d9d9'; // 无引用 - 灰色
+    };
+    
+    // 递归计算节点的引用次数总和
+    const calculateReferenceCount = (node: any) => {
+      if (!node.children || node.children.length === 0) {
+        return node.referenceCount || 0;
+      }
+      
+      let totalCount = 0;
+      for (const child of node.children) {
+        totalCount += calculateReferenceCount(child);
+      }
+      
+      node.referenceCount = totalCount;
+      return totalCount;
+    };
+    
     // 创建一个临时根节点，用于构建树结构
     const tempRoot: any = {
       name: 'tempRoot', // 临时名称，后面会被移除
       children: [],
+      referenceCount: 0, // 根节点引用次数初始化为0
       itemStyle: {
         color: '#1890ff'
       },
@@ -544,16 +611,25 @@ const RAGPage: React.FC = () => {
     chunks.forEach((chunk, index) => {
       const { metadata, id, content } = chunk;
       
+      // 获取当前分块的引用量
+      const referenceCount = chunk.referenceCount || 0;
+      const nodeColor = getColorByReferenceCount(referenceCount);
+      
       // 确保path属性存在，避免TypeError
       if (!metadata.path) {
         // 如果没有path属性，直接作为根节点的子节点
-        tempRoot.children.push({
+        const leafNode = {
           name: `分块 ${id || index + 1}`,
           value: content || '无内容',
+          referenceCount: referenceCount,
           itemStyle: {
-            color: '#52c41a'
+            color: nodeColor
+          },
+          label: {
+            color: nodeColor
           }
-        });
+        };
+        tempRoot.children.push(leafNode);
         return;
       }
       
@@ -588,6 +664,7 @@ const RAGPage: React.FC = () => {
           const newNode = {
             name: nodeName,
             children: [],
+            referenceCount: 0, // 初始化引用次数为0
             itemStyle: {
               color: '#fa8c16'
             },
@@ -623,19 +700,40 @@ const RAGPage: React.FC = () => {
         displayPath += (idx > 0 ? ' > ' : '') + partName;
       });
       
-      currentNode.children.push({
+      // 创建当前文档分块节点并添加到父节点的子节点列表中
+      const leafNode = {
         name: `${id}`,
         value: content,
         id: id,
         path: displayPath,
+        referenceCount: referenceCount,
         itemStyle: {
-          color: '#722ed1'
+          color: nodeColor
         },
         label: {
-          color: '#722ed1'
+          color: nodeColor
         }
-      });
+      };
+      currentNode.children.push(leafNode);
     });
+    
+    // 计算所有父节点的引用次数总和
+    calculateReferenceCount(tempRoot);
+    
+    // 为所有节点设置颜色
+    const setNodeColors = (node: any) => {
+      const nodeColor = getColorByReferenceCount(node.referenceCount);
+      node.itemStyle = { color: nodeColor };
+      node.label = { color: nodeColor };
+      
+      if (node.children) {
+        for (const child of node.children) {
+          setNodeColors(child);
+        }
+      }
+    };
+    
+    setNodeColors(tempRoot);
     
     // 移除临时根节点，直接返回其子节点
     // 如果只有一个子节点，则直接返回该子节点作为树的根节点
@@ -646,11 +744,12 @@ const RAGPage: React.FC = () => {
       return {
         name: '文档结构',
         children: tempRoot.children,
+        referenceCount: tempRoot.referenceCount,
         itemStyle: {
-          color: '#1890ff'
+          color: getColorByReferenceCount(tempRoot.referenceCount)
         },
         label: {
-          color: '#1890ff',
+          color: getColorByReferenceCount(tempRoot.referenceCount),
           fontWeight: 'bold',
           fontSize: 16
         }
@@ -837,6 +936,28 @@ const RAGPage: React.FC = () => {
             <div id="chunksTree" className={styles.chunksTreeChart}></div>
             <div className={styles.chunksTreeDataCount}>
               共 {chunksCount} 条分块数据
+              <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ width: '12px', height: '12px', backgroundColor: '#ff4d4f', display: 'inline-block', marginRight: '8px' }}></span>
+                  <span>红色：≥ 50 次引用</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ width: '12px', height: '12px', backgroundColor: '#fa8c16', display: 'inline-block', marginRight: '8px' }}></span>
+                  <span>橙色：20 - 49 次引用</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ width: '12px', height: '12px', backgroundColor: '#faad14', display: 'inline-block', marginRight: '8px' }}></span>
+                  <span>黄色：10 - 19 次引用</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ width: '12px', height: '12px', backgroundColor: '#52c41a', display: 'inline-block', marginRight: '8px' }}></span>
+                  <span>绿色：1 - 9 次引用</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ width: '12px', height: '12px', backgroundColor: '#d9d9d9', display: 'inline-block', marginRight: '8px' }}></span>
+                  <span>灰色：0 次引用</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

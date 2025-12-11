@@ -50,6 +50,11 @@ const Knowledge = sequelize.define('Knowledge', {
     defaultValue: false,
     allowNull: false
   },
+  views: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

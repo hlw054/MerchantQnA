@@ -162,6 +162,52 @@ router.post('/query/phase2', chatController.handleChatQueryPhase2);
 
 /**
  * @swagger
+ * /api/chat/query/phase3: 
+ *   post:
+ *     summary: 处理聊天查询第三阶段，更新消息的result字段
+ *     tags: [Chat]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               messageId:
+ *                 type: string
+ *                 description: 消息ID
+ *                 example: "550e8400-e29b-41d4-a716-446655440000"
+ *               result:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: 被采纳的result数组
+ *                 example: [1, 2, 3]
+ *     responses:
+ *       200: 
+ *         description: 更新成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "消息result字段更新成功"
+ *       400: 
+ *         description: 请求参数错误
+ *       404: 
+ *         description: 未找到对应的消息
+ *       500: 
+ *         description: 服务器内部错误
+ */
+router.post('/query/phase3', chatController.handleChatQueryPhase3);
+
+/**
+ * @swagger
  * /api/chat/{userId}/list: 
  *   get:
  *     summary: 通过userId获取Chat列表

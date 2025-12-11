@@ -11,6 +11,7 @@ const knowledgeRoutes = require('./knowledgeRoutes');
 const pdfConversionRoutes = require('./pdfConversionRoutes');
 const chatRoutes = require('./chatRoutes');
 const labelRoutes = require('./labelRoutes');
+const dataRoutes = require('./dataRoutes');
 
 // 健康检查路由
 router.get('/health', (req, res) => {
@@ -32,5 +33,8 @@ router.use('/chat', chatRoutes);
 
 // 标签相关路由
 router.use('/label', labelRoutes);
+
+// 数据相关路由
+router.use('/data', dataRoutes);
 
 module.exports = router;

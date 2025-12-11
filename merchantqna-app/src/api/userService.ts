@@ -54,3 +54,33 @@ export const getCurrentUser = async () => {
     throw error;
   }
 };
+
+// 获取用户列表接口
+export const getUsers = async (page: number = 1, limit: number = 10) => {
+  try {
+    const response = await request.get('/users', {
+      params: {
+        page,
+        limit
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('获取用户列表失败:', error);
+    throw error;
+  }
+};
+
+// 修改用户角色接口
+export const updateUserRole = async (userId: number, role: string) => {
+  try {
+    const response = await request.patch('/users/role', {
+      userId,
+      role
+    });
+    return response.data;
+  } catch (error) {
+    console.error('修改用户角色失败:', error);
+    throw error;
+  }
+};

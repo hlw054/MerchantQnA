@@ -42,6 +42,11 @@ const Message = sequelize.define('Message', {
     allowNull: false,
     field: 'merged_results'
   },
+  result: {
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
+    defaultValue: [],
+    allowNull: false
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

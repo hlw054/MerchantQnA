@@ -66,6 +66,31 @@ router.get('/:id', knowledgeController.getKnowledgeById);
 
 /**
  * @swagger
+ * /api/knowledge/{id}/views/increment: 
+ *   put:
+ *     summary: 通过id增加knowledge浏览数
+ *     tags: [Knowledge]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: 知识文档ID
+ *     responses:
+ *       200: 
+ *         description: 增加浏览数成功
+ *       400: 
+ *         description: 请求参数错误
+ *       404: 
+ *         description: 知识文档不存在
+ *       500: 
+ *         description: 服务器内部错误
+ */
+router.put('/:id/views/increment', knowledgeController.incrementKnowledgeViews);
+
+/**
+ * @swagger
  * /api/knowledge: 
  *   post:
  *     summary: 通过传递名称、一级标签、二级标签创建新实体（无content）

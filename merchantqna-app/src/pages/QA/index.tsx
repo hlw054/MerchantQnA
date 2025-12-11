@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import rehypeSlug from 'rehype-slug';
+import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { IconMenuFold, IconMessage, IconEdit, IconDelete, IconMenuUnfold, IconSearch, IconTiktokColor, IconImport, IconUser, IconSend, IconSync, IconCopy, IconThumbUp, IconThumbDown, IconRefresh, IconDown } from '@arco-design/web-react/icon';
 import { Message, Modal } from '@arco-design/web-react';
-import { getChatListByUserId, createChat, deleteChat, getChatMessages, executeChatQueryPhase1, executeChatQueryPhase2, deleteMessageById } from '../../api/chatService';
+import { getChatListByUserId, createChat, deleteChat, getChatMessages, executeChatQueryPhase1, executeChatQueryPhase2, executeChatQueryPhase3, deleteMessageById, updateChatTitle } from '../../api/chatService';
 import type { Message as ChatMessage } from '../../api/chatService';
 
 // 自定义链接组件
@@ -204,17 +206,17 @@ const CustomImage = ({ src, alt, title }: { src: string; alt?: string; title?: s
   };
 
   return (
-    <div className={styles.imageContainer}>
+    <span className={styles.imageContainer}>
       {loading && (
-        <div className={styles.imageLoading}>
-          <div className={styles.spinner}></div>
+        <span className={styles.imageLoading}>
+          <span className={styles.spinner}></span>
           <span>加载中...</span>
-        </div>
+        </span>
       )}
       {error && (
-        <div className={styles.imageError}>
+        <span className={styles.imageError}>
           <span>图片加载失败</span>
-        </div>
+        </span>
       )}
       <img 
         src={src} 
@@ -224,7 +226,7 @@ const CustomImage = ({ src, alt, title }: { src: string; alt?: string; title?: s
         onLoad={handleLoad}
         onError={handleError}
       />
-    </div>
+    </span>
   );
 };
 
@@ -280,10 +282,17 @@ const QA: React.FC = () => {
   // 点踩状态管理
   const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set());
   // 思考阶段状态
-  const [thinkingPhase, setThinkingPhase] = useState<'initial' | 'retrieving' | 'generating' | 'complete'>('initial');
+  const [thinkingPhase, setThinkingPhase] = useState<'retrieving' | 'thinking' | 'generating' | 'complete'>('complete');
   
   // 滚动到最底部按钮可见性状态
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  
+  // 参考资料侧边栏状态管理
+  const [isReferenceSidebarOpen, setIsReferenceSidebarOpen] = useState(false);
+  const [referenceSidebarData, setReferenceSidebarData] = useState<{
+    references: any[];
+    adoptedIndices: number[];
+  } | null>(null);
 
   // 获取聊天列表
   useEffect(() => {
@@ -365,8 +374,8 @@ const QA: React.FC = () => {
           id: msg.messageId,
           content: msg.content,
           sender: msg.role === 'user' ? 'user' : 'assistant',
-          timestamp: msg.sendTime,
           mergedResults: msg.mergedResults,
+          result: msg.result
         }));
 
         // 更新消息列表
@@ -394,11 +403,30 @@ const QA: React.FC = () => {
   };
 
   // 处理确认修改名称
-  const handleConfirmEdit = () => {
-    if (newChatTitle.trim() && selectedChat) {
-      setSelectedChat((prev: any) => prev ? { ...prev, title: newChatTitle.trim() } : null);
-      setIsEditModalVisible(false);
-      setNewChatTitle('');
+  const handleConfirmEdit = async () => {
+    if (newChatTitle.trim() && selectedChat && selectedChat.id) {
+      try {
+        // 调用API修改聊天标题
+        const updatedChat = await updateChatTitle(selectedChat.id, newChatTitle.trim());
+        
+        // 更新本地状态
+        setSelectedChat((prev: any) => prev ? { ...prev, title: updatedChat.chatTitle } : null);
+        
+        // 更新聊天列表中的标题
+        setChatList(prevChatList => prevChatList.map((chat: any) => 
+          chat.chatId === selectedChat.id ? { ...chat, chatTitle: updatedChat.chatTitle } : chat
+        ));
+        
+        // 关闭弹窗并重置输入
+        setIsEditModalVisible(false);
+        setNewChatTitle('');
+        
+        // 显示成功消息
+        Message.success('聊天标题修改成功');
+      } catch (error: any) {
+        console.error('修改聊天标题失败:', error);
+        Message.error(error.message || '修改聊天标题失败，请稍后重试');
+      }
     }
   };
 
@@ -471,7 +499,8 @@ const QA: React.FC = () => {
       content: '',
       sender: 'assistant',
       timestamp: new Date().toISOString(),
-      mergedResults: [] // 用于存储检索结果
+      mergedResults: [], // 用于存储检索结果
+      result: [] // 初始化result字段，保持数据结构一致性
     };
     
     // 添加到消息列表（用户消息和空的助手消息）
@@ -488,6 +517,7 @@ const QA: React.FC = () => {
     
     // 重置思考阶段
     setThinkingPhase('retrieving');
+    console.log('思考阶段:', thinkingPhase);
     
     // 将当前消息列表转换为sendChatQuery所需的格式
     const history: ChatMessage[] = []
@@ -500,8 +530,6 @@ const QA: React.FC = () => {
           throw new Error('聊天会话ID不存在');
         }
         
-        // 第一阶段：执行检索
-        setThinkingPhase('retrieving');
         const phase1Result = await executeChatQueryPhase1(inputValue.trim(), currentChatId);
         console.log('第一阶段结果:', phase1Result);
         
@@ -515,8 +543,8 @@ const QA: React.FC = () => {
           return updatedMessages;
         });
         
-        // 第二阶段：生成回答
-        setThinkingPhase('generating');
+        // 第二阶段：思考阶段（还未收到流式输出前）
+        setThinkingPhase('thinking');
         const response = await executeChatQueryPhase2(
           inputValue.trim(),
           currentChatId,
@@ -524,7 +552,6 @@ const QA: React.FC = () => {
           phase1Result.optimizedQuery,
           phase1Result.mergedResults
         );
-
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`HTTP error! status: ${response.status}\n${errorText}`);
@@ -539,6 +566,8 @@ const QA: React.FC = () => {
         let done = false;
         let buffer = '';
 
+        setThinkingPhase('generating');
+        
         while (!done) {
           const { value, done: readerDone } = await reader.read();
           done = readerDone;
@@ -566,6 +595,7 @@ const QA: React.FC = () => {
                 
                 // 根据type字段处理内容
                 if (data.type === 'chunk' && data.content !== undefined) {
+                  // 开始收到流式输出，切换到生成阶段
                   // 更新助手消息内容
                   setChatMessages(prev => {
                     const updatedMessages = [...prev];
@@ -579,7 +609,6 @@ const QA: React.FC = () => {
                   // 处理完成事件
                   console.log('流式输出完成', data);
                   // 设置思考阶段为完成
-                  setThinkingPhase('complete');
                 }
               } catch (jsonError) {
                 console.error('JSON解析错误:', jsonError, jsonStr);
@@ -591,17 +620,80 @@ const QA: React.FC = () => {
         // 所有流式数据读取完毕后，重新获取完整的消息列表以确保数据一致性
         if (currentChatId) {
           try {
+          
             const messages = await getChatMessages(currentChatId);
             // 转换消息格式，确保与现有渲染逻辑兼容
             const formattedMessages = messages.map((msg: any) => ({
               id: msg.messageId,
               content: msg.content,
               sender: msg.role === 'user' ? 'user' : 'assistant',
-              timestamp: msg.sendTime,
               mergedResults: msg.mergedResults,
+              result: msg.result, // 包含result字段，与获取历史消息时保持一致
             }));
             // 更新消息列表
             setChatMessages(formattedMessages);
+            setThinkingPhase('complete');
+            
+            // 第三阶段：更新被采纳的文档
+            // 获取最新的助手消息（最后一条助手消息）
+            const latestAssistantMessage = formattedMessages.slice().reverse().find((msg: { id: string; content: string; sender: string; mergedResults?: any[]; result?: number[] }) => msg.sender === 'assistant' && msg.content !== '');
+            if (latestAssistantMessage) {
+              // 从回复中判断哪些文档被采用
+              // 寻找[描述](链接)格式的超链接，排除![]()图片的干扰，从描述中提取数字
+              const content = latestAssistantMessage.content;
+              
+              // 正则表达式匹配[描述](链接)格式的超链接，排除图片格式(![]())
+              // 匹配规则：不是!开头，然后是[描述](链接)
+              const linkRegex = /(?<!!)\[(.*?)\]\([^)]*\)/g;
+              const adoptedResultsSet = new Set<number>(); // 使用Set去重
+              let match;
+              
+              // 查找所有匹配的超链接
+              while ((match = linkRegex.exec(content)) !== null) {
+                // 提取[]内的描述
+                const description = match[1];
+                console.log('匹配到的描述:', description);
+                
+                // 从描述中提取数字（去除汉字，剩下的就是index）
+                const numbers = description.match(/\d+/g);
+                if (numbers) {
+                  // 将提取的所有数字组合成一个字符串，然后转换为数字
+                  const numberStr = numbers.join('');
+                  const index = parseInt(numberStr, 10);
+                  // 确保数字有效且不为0
+                  if (!isNaN(index) && index >= 1) {
+                    // 转换为0-based索引并添加到Set中
+                    adoptedResultsSet.add(index - 1);
+                  }
+                }
+              }
+              
+              // 将Set转换为数组并从小到大排序
+              const adoptedResults = Array.from(adoptedResultsSet).sort((a, b) => a - b);
+              
+              // 如果有被采纳的文档，则调用第三阶段接口
+              if (adoptedResults.length > 0) {
+                try {
+                  console.log(adoptedResults)
+                  await executeChatQueryPhase3(latestAssistantMessage.id, adoptedResults);
+                  console.log('第三阶段接口调用成功');
+                  
+                  // 更新本地最新助手消息的result字段
+                  const updatedMessages = formattedMessages.map((msg: { id: string; content: string; sender: string; mergedResults?: any[]; result?: number[] }) => {
+                    if (msg.id === latestAssistantMessage.id) {
+                      return { ...msg, result: adoptedResults };
+                    }
+                    return msg;
+                  });
+                  
+                  // 更新消息列表状态
+                  setChatMessages(updatedMessages);
+                } catch (error) {
+                  console.error('第三阶段接口调用失败:', error);
+                  // 失败时不影响用户体验
+                }
+              }
+            }
           } catch (error) {
             console.error('重新获取消息列表失败:', error);
             // 失败时不影响用户体验，保持本地消息列表不变
@@ -611,7 +703,6 @@ const QA: React.FC = () => {
         console.log('流式输出完成');
         // 发送完成，重置状态
         setIsSending(false);
-        setThinkingPhase('complete');
       } catch (error) {
         console.error('流式输出错误:', error);
         Message.error('获取回答失败，请重试');
@@ -700,8 +791,8 @@ const QA: React.FC = () => {
   useEffect(() => {
     let timer: number | null = null;
     
-    // 检查是否处于思考阶段（retrieving或generating）
-    const isThinking = thinkingPhase === 'retrieving' || thinkingPhase === 'generating';
+    // 检查是否处于思考阶段（retrieving、thinking或generating）
+    const isThinking = thinkingPhase === 'retrieving' || thinkingPhase === 'thinking' || thinkingPhase === 'generating';
     
     if (isThinking) {
       // 如果正在思考，但还没有开始计时，设置开始时间
@@ -728,7 +819,7 @@ const QA: React.FC = () => {
         window.clearInterval(timer);
       }
     };
-  }, [chatMessages, thinkingStartTime, thinkingPhase]);
+  }, [thinkingStartTime, thinkingPhase]);
 
   // 监听聊天消息变化，自动滚动到底部
   useEffect(() => {
@@ -859,7 +950,9 @@ const QA: React.FC = () => {
       </div>
 
       {/* 右侧内容区域 */}
-      <div className={styles.mainContent}>
+      <div className={`${styles.mainContent} ${isReferenceSidebarOpen ? styles.mainContentWithSidebar : ''}`}>
+        {/* 主聊天内容 */}
+        <div className={styles.chatMainArea}>
         {/* 合并的顶部工具栏 */}
         <div className={styles.chatHeader} ref={chatTitleRef}>
           <div className={styles.chatHeaderLeft}>
@@ -939,8 +1032,8 @@ const QA: React.FC = () => {
                       ) : (
                         // 助手消息：使用ReactMarkdown渲染markdown内容
                         <div className={styles.documentContent}>
-                          {/* 如果助手消息内容为空，显示加载动画和计时 */}
-                              {message.content === '' && (
+                          {/* 在思考阶段（retrieving、thinking、generating）显示状态，complete阶段不显示，且只在最后一个助手消息上显示 */}
+                              {thinkingPhase !== 'complete' && message.id === chatMessages.slice().reverse().find(m => m.sender === 'assistant')?.id && (
                                 <div style={{ 
                                   display: 'flex', 
                                   alignItems: 'center', 
@@ -961,17 +1054,21 @@ const QA: React.FC = () => {
                                     fontStyle: 'italic'
                                   }}>
                                     {thinkingPhase === 'retrieving' && '正在获取相关文档... '}
-                                    {thinkingPhase === 'generating' && (
-                                      <>已获取 {message.mergedResults?.length || 0} 篇相关文档，正在生成回答... </>
+                                    {thinkingPhase === 'thinking' && (
+                                      <>已获取 {message.mergedResults?.length || 0} 篇相关文档，正在思考回答... </>
                                     )}
+                                    {thinkingPhase === 'generating' && (
+                                      <>正在生成回答... </>
+                                    )}
+                                    
                                     {thinkingDuration}秒
                                   </span>
                                 </div>
                               )}
                           {/* 渲染助手消息内容 */}
                           <ReactMarkdown 
-            remarkPlugins={[remarkGfm]} 
-            rehypePlugins={[rehypeSlug]} 
+            remarkPlugins={[remarkGfm, remarkBreaks]} 
+            rehypePlugins={[rehypeSlug, rehypeRaw]} 
             components={{...components, a: (props) => <CustomLink {...props} mergedResults={message.mergedResults} />}}
           >{message.content}</ReactMarkdown>
                           
@@ -1041,11 +1138,12 @@ const QA: React.FC = () => {
                                 Message.success('已点踩');
                               }}
                             />
+                    
                             
-                            {/* 重新生成功能 - 只在最后一条助手消息显示 */}
-                          {chatMessages.indexOf(message) === chatMessages.length - 1 && (
+                            {/* 重新生成功能 - 只在最后一条助手消息显示，且输出完成 */}
+                          {chatMessages.indexOf(message) === chatMessages.length - 1 && thinkingPhase === 'complete' && (
                             <IconRefresh 
-                              style={{ fontSize: 18, cursor: 'pointer' }}
+                              style={{ fontSize: 18, cursor: 'pointer', marginRight: 16 }}
                               onClick={async () => {
                                 // 找到当前回答对应的问题索引
                                 const currentIndex = chatMessages.indexOf(message);
@@ -1081,6 +1179,25 @@ const QA: React.FC = () => {
                               }}
                             />
                           )}
+
+                            {/* 参考资料提示 - 最后一条助手消息在输出完成或初始状态时显示，非最后一条始终显示 */}
+                            {message.mergedResults && message.mergedResults.length > 0 && 
+                              (chatMessages.indexOf(message) !== chatMessages.length - 1 || thinkingPhase === 'complete') && (
+                              <div 
+                                className={styles.referenceHint}
+                                onClick={() => {
+                                  setIsReferenceSidebarOpen(true);
+                                  // 更新侧边栏数据
+                                  setReferenceSidebarData({
+                                    references: message.mergedResults,
+                                    adoptedIndices: message.result || []
+                                  });
+                                }}
+                              >
+                                <span style={{ marginRight: '4px' }}>找了 {message.mergedResults.length} 篇资料作为参考</span>
+                                <IconDown style={{ fontSize: 14, transform: 'rotate(-90deg)' }} />
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -1184,6 +1301,82 @@ const QA: React.FC = () => {
                   删除
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        </div>
+        
+        {/* 参考资料侧边栏 */}
+        {isReferenceSidebarOpen && (
+          <div className={styles.referenceSidebar}>
+            <div className={styles.referenceSidebarHeader}>
+              <div className={styles.referenceSidebarTitle}>引用来源</div>
+              <div 
+                className={styles.referenceSidebarClose}
+                onClick={() => {
+                  setIsReferenceSidebarOpen(false);
+                  setReferenceSidebarData(null);
+                }}
+              >
+                <span style={{ fontSize: '24px', fontWeight: 'bold', color: 'black' }}>×</span>
+              </div>
+            </div>
+            <div className={styles.referenceList}>
+              {referenceSidebarData ? (
+                referenceSidebarData.references.map((result: any, index: number) => {
+                  const adopted = referenceSidebarData.adoptedIndices.includes(index);
+                  
+                  // 处理点击跳转功能
+                  const handleReferenceClick = () => {
+                    if (!result || !result.knowledgeId || !result.metadata?.path) {
+                      return;
+                    }
+                    
+                    // 处理path：去掉第一个元素
+                    const pathParts = result.metadata.path.split('-');
+                    if (pathParts.length > 1) {
+                      pathParts.shift(); // 去掉第一个元素
+                      const adjustedPath = pathParts.join('-');
+                      
+                      // 构建跳转URL
+                      const rulesUrl = `/rules/${result.knowledgeId}?path=${encodeURIComponent(adjustedPath)}`;
+                      window.open(rulesUrl, '_blank');
+                    }
+                  };
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`${styles.referenceItem} ${adopted ? styles.referenceItemAdopted : styles.referenceItemNotAdopted}`}
+                      onClick={handleReferenceClick}
+                    >
+                      <div className={styles.referenceContent}>
+                        <div className={styles.referenceTitleContainer}>
+                          <div className={styles.referenceTitle}>
+                            {result.metadata?.title || result.metadata?.path || '未命名文档'}
+                          </div>
+                          <div 
+                            className={`${styles.referenceNumber} ${adopted ? styles.referenceNumberAdopted : styles.referenceNumberNotAdopted}`}
+                          >
+                            {index + 1}
+                          </div>
+                        </div>
+                        {result.metadata?.date && (
+                          <div className={styles.referenceDate}>{result.metadata.date}</div>
+                        )}
+                        <div className={styles.referenceSnippet}>
+                          {result.content?.substring(0, 300) || ''}...
+                        </div>
+                        <div className={`${styles.referenceStatus} ${adopted ? styles.referenceStatusAdopted : styles.referenceStatusNotAdopted}`}>
+                          {adopted ? '已采用' : '未采用'}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className={styles.emptyReferences}>暂无参考资料</div>
+              )}
             </div>
           </div>
         )}

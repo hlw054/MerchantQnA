@@ -230,10 +230,102 @@ const logout = async (req, res, next) => {
   }
 };
 
+/**
+ * 获取用户列表
+ * @param {Object} req - Express请求对象
+ * @param {Object} res - Express响应对象
+ * @param {Function} next - 下一个中间件
+ */
+const getUsers = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    
+    // 验证分页参数
+    if (isNaN(pageNum) || pageNum < 1 || isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+      return next(new AppError(400, '无效的分页参数'));
+    }
+    
+    // 计算偏移量
+    const offset = (pageNum - 1) * limitNum;
+    
+    // 获取用户列表（排除密码字段）
+    const { count, rows } = await User.findAndCountAll({
+      attributes: { exclude: ['password'] },
+      limit: limitNum,
+      offset: offset,
+      order: [['createdAt', 'DESC']] // 按创建时间倒序排列
+    });
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        users: rows,
+        pagination: {
+          currentPage: pageNum,
+          pageSize: limitNum,
+          totalItems: count,
+          totalPages: Math.ceil(count / limitNum)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取用户列表失败:', error);
+    return next(new AppError(500, '获取用户列表失败，请稍后重试'));
+  }
+};
+
+/**
+ * 修改用户角色
+ * @param {Object} req - Express请求对象
+ * @param {Object} res - Express响应对象
+ * @param {Function} next - 下一个中间件
+ */
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { userId, role } = req.body;
+    
+    // 验证必填字段
+    if (!userId || !role) {
+      return next(new AppError(400, '用户ID和角色不能为空'));
+    }
+    
+    // 验证角色是否有效
+    const validRoles = ['user', 'merchant', 'admin'];
+    if (!validRoles.includes(role)) {
+      return next(new AppError(400, '无效的角色，支持的角色有：user, merchant, admin'));
+    }
+    
+    // 查找用户
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return next(new AppError(404, '用户不存在'));
+    }
+    
+    // 更新用户角色
+    await user.update({ role });
+    
+    res.status(200).json({
+      status: 'success',
+      message: '用户角色更新成功',
+      data: {
+        userId: user.id,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('修改用户角色失败:', error);
+    return next(new AppError(500, '修改用户角色失败，请稍后重试'));
+  }
+};
+
 module.exports = {
   register,
   login,
   getCurrentUser,
   sendVerificationCode,
-  logout
+  logout,
+  getUsers,
+  updateUserRole
 };

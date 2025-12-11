@@ -12,6 +12,7 @@ export interface Document {
   createdAt: string;
   updatedAt: string;
   isAddedToRAG: boolean;
+  views: number; // 浏览量字段
 }
 
 // 文档列表响应接口
@@ -193,5 +194,22 @@ export const viewDocumentChunks = async (documentId: string) => {
     console.error('查看文档分块失败:', error);
     Message.error('查看文档分块失败，请稍后重试');
     throw error;
+  }
+};
+
+// 增加文档浏览数
+export const incrementDocumentViews = async (documentId: string) => {
+  try {
+    // 参数验证
+    if (!documentId) {
+      throw new Error('文档ID是必填的');
+    }
+    
+    const response = await request.put(`/knowledge/${documentId}/views/increment`);
+    return response.data;
+  } catch (error) {
+    console.error('增加文档浏览数失败:', error);
+    // 浏览数增加失败不影响页面加载，所以不显示错误消息
+    return null;
   }
 };

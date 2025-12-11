@@ -10,6 +10,7 @@ const Knowledge = require('./Knowledge');
 const Chat = require('./Chat');
 const Message = require('./Message');
 const Label = require('./Label');
+const ChunkReference = require('./ChunkReference');
 
 // 定义模型之间的关联关系
 const setupAssociations = () => {
@@ -31,6 +32,16 @@ const setupAssociations = () => {
   Message.belongsTo(Chat, {
     foreignKey: 'chatId',
     as: 'chat'
+  });
+  
+  // 知识文档与分块引用：一对多
+  Knowledge.hasMany(ChunkReference, {
+    foreignKey: 'knowledgeId',
+    as: 'chunkReferences'
+  });
+  ChunkReference.belongsTo(Knowledge, {
+    foreignKey: 'knowledgeId',
+    as: 'knowledge'
   });
 };
 
@@ -59,5 +70,6 @@ module.exports = {
   Knowledge,
   Chat,
   Message,
-  Label
+  Label,
+  ChunkReference
 };

@@ -130,12 +130,12 @@ const ManageLayout: React.FC<ManageLayoutProps> = ({ children }) => {
                 {!collapsed && <span>用户管理</span>}
               </Link>
             </li>
-            <li className={`${styles.navItem} ${location.pathname.startsWith('/manage/data') ? styles.active : ''}`}>
+            {/* <li className={`${styles.navItem} ${location.pathname.startsWith('/manage/data') ? styles.active : ''}`}>
               <Link to="/manage/data" className={`${styles.navLink} ${location.pathname.startsWith('/manage/data') ? styles.active : ''}`}>
                 <IconSettings className={styles.navIcon} />
                 {!collapsed && <span>数据中心</span>}
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
         

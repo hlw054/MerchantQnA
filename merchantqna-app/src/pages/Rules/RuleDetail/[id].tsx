@@ -6,8 +6,9 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeSlug from 'rehype-slug';
 import rehypeRaw from 'rehype-raw';
+import html2pdf from 'html2pdf.js';
 
-import { getDocumentDetail } from '../../../api/knowledgeService';
+import { getDocumentDetail, incrementDocumentViews } from '../../../api/knowledgeService';
 import styles from './styles.module.css';
 
 // 移除未使用的函数
@@ -255,14 +256,19 @@ const RuleDetail: React.FC = () => {
     return toc;
   };
   
-  // 获取文档详情
+  // 获取文档详情并增加浏览数
   useEffect(() => {
     const fetchDocumentDetail = async () => {
       try {
         setLoading(true);
         // 从URL获取id参数（这里简化处理，实际项目中应该使用useRouter）
         const id = window.location.pathname.split('/').pop() || '1';
-        const response = await getDocumentDetail(id);
+        
+        // 并行执行获取文档详情和增加浏览数
+        const [response] = await Promise.all([
+          getDocumentDetail(id),
+          incrementDocumentViews(id) // 增加浏览数
+        ]);
         
         if (response && response.data && response.data.knowledge) {
           const data = response.data.knowledge;
@@ -402,6 +408,226 @@ const RuleDetail: React.FC = () => {
     }
   }, [documentData, loading]);
 
+  // 下载PDF功能
+  const handleDownloadPDF = async () => {
+    if (!documentData) return;
+    
+    try {
+      Message.loading('正在生成PDF，请稍候...');
+      
+      // 获取要转换的内容容器
+      const contentElement = contentRef.current;
+      if (!contentElement) {
+        Message.error('无法获取文档内容');
+        return;
+      }
+      
+      // 简化方案：直接使用更合适的布局设置
+      
+      // 创建一个临时容器来渲染完整的PDF内容
+      const pdfContentContainer = document.createElement('div');
+      pdfContentContainer.style.backgroundColor = '#ffffff';
+      pdfContentContainer.style.width = '180mm'; // 内容宽度（与内部元素一致）
+      pdfContentContainer.style.boxSizing = 'border-box';
+      pdfContentContainer.style.fontFamily = 'Arial, sans-serif';
+      pdfContentContainer.style.lineHeight = '1.7';
+      pdfContentContainer.style.color = '#333333';
+      pdfContentContainer.style.textAlign = 'left'; // 文本左对齐
+      pdfContentContainer.style.margin = '0 auto'; // 水平居中
+      
+      // 创建标题区域
+      const titleSection = document.createElement('div');
+      titleSection.style.textAlign = 'center';
+      titleSection.style.marginBottom = '40px';
+      titleSection.style.width = '100%';
+      
+      // 创建标题元素
+      const titleElement = document.createElement('h1');
+      titleElement.textContent = documentData.title;
+      titleElement.style.fontSize = '28px';
+      titleElement.style.margin = '0 0 15px 0';
+      titleElement.style.color = '#1a1a1a';
+      titleElement.style.textAlign = 'center';
+      titleElement.style.fontWeight = '700';
+      titleElement.style.lineHeight = '1.3';
+      titleElement.style.paddingBottom = '10px';
+      titleElement.style.borderBottom = '3px solid #3498db';
+      titleElement.style.width = '100%';
+      
+      // 创建文档信息区域
+      const infoSection = document.createElement('div');
+      infoSection.style.fontSize = '12px';
+      infoSection.style.color = '#666';
+      infoSection.style.marginBottom = '25px';
+      infoSection.style.textAlign = 'center';
+      
+      if (documentData.updateTime) {
+        const updateInfo = document.createElement('div');
+        updateInfo.textContent = `更新时间：${documentData.updateTime}`;
+        infoSection.appendChild(updateInfo);
+      }
+      
+      // 添加标签信息
+      if (documentData.primaryTag) {
+        const tagInfo = document.createElement('div');
+        tagInfo.style.marginTop = '5px';
+        tagInfo.innerHTML = `标签：<span style="color: #3498db; font-weight: 600;">${documentData.primaryTag}</span>${documentData.secondaryTag ? ` / ${documentData.secondaryTag}` : ''}`;
+        infoSection.appendChild(tagInfo);
+      }
+      
+      // 创建内容元素
+      const contentClone = contentElement.cloneNode(true) as HTMLElement;
+      contentClone.style.width = '180mm'; // 内容宽度
+      contentClone.style.margin = '0 auto'; // 强制水平居中
+      contentClone.style.padding = '0';
+      contentClone.style.textAlign = 'left'; // 保持文本左对齐
+      
+      // 添加样式到内容
+      const allElements = contentClone.querySelectorAll('*');
+      allElements.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.fontFamily = 'Arial, sans-serif';
+        
+        // 重置可能影响宽度的样式
+        htmlEl.style.maxWidth = '100%';
+        htmlEl.style.minWidth = 'auto';
+        
+        // 标题样式
+        if (htmlEl.tagName === 'H1' || htmlEl.tagName === 'H2' || htmlEl.tagName === 'H3' || 
+            htmlEl.tagName === 'H4' || htmlEl.tagName === 'H5' || htmlEl.tagName === 'H6') {
+          htmlEl.style.color = '#2c3e50';
+          htmlEl.style.marginTop = '30px';
+          htmlEl.style.marginBottom = '15px';
+          htmlEl.style.fontWeight = '600';
+        }
+        
+        // 一级标题
+        if (htmlEl.tagName === 'H1') {
+          htmlEl.style.fontSize = '24px';
+          htmlEl.style.borderBottom = '2px solid #ecf0f1';
+          htmlEl.style.paddingBottom = '8px';
+        }
+        
+        // 二级标题
+        if (htmlEl.tagName === 'H2') {
+          htmlEl.style.fontSize = '20px';
+          htmlEl.style.borderBottom = '1px solid #ecf0f1';
+          htmlEl.style.paddingBottom = '6px';
+        }
+        
+        // 三级标题
+        if (htmlEl.tagName === 'H3') {
+          htmlEl.style.fontSize = '18px';
+        }
+        
+        // 段落样式
+        if (htmlEl.tagName === 'P') {
+          htmlEl.style.marginBottom = '15px';
+          htmlEl.style.textIndent = '2em';
+        }
+        
+        // 列表样式
+        if (htmlEl.tagName === 'UL' || htmlEl.tagName === 'OL') {
+          htmlEl.style.marginBottom = '15px';
+          htmlEl.style.paddingLeft = '25px';
+        }
+        
+        if (htmlEl.tagName === 'LI') {
+          htmlEl.style.marginBottom = '5px';
+        }
+        
+        // 表格样式
+        if (htmlEl.tagName === 'TABLE') {
+          htmlEl.style.width = '100%';
+          htmlEl.style.borderCollapse = 'collapse';
+          htmlEl.style.marginBottom = '20px';
+          htmlEl.style.fontSize = '14px';
+        }
+        
+        if (htmlEl.tagName === 'TH') {
+          htmlEl.style.backgroundColor = '#f8f9fa';
+          htmlEl.style.border = '1px solid #dee2e6';
+          htmlEl.style.padding = '8px 12px';
+          htmlEl.style.textAlign = 'left';
+          htmlEl.style.fontWeight = '600';
+        }
+        
+        if (htmlEl.tagName === 'TD') {
+          htmlEl.style.border = '1px solid #dee2e6';
+          htmlEl.style.padding = '8px 12px';
+        }
+        
+        // 代码块样式
+        if (htmlEl.tagName === 'PRE' || htmlEl.tagName === 'CODE') {
+          htmlEl.style.backgroundColor = '#f5f5f5';
+          htmlEl.style.borderRadius = '4px';
+          htmlEl.style.padding = '10px';
+          htmlEl.style.fontFamily = 'Consolas, Monaco, "Courier New", monospace';
+          htmlEl.style.fontSize = '13px';
+          htmlEl.style.overflowX = 'auto';
+        }
+        
+        // 链接样式
+        if (htmlEl.tagName === 'A') {
+          htmlEl.style.color = '#3498db';
+          htmlEl.style.textDecoration = 'none';
+        }
+      });
+      
+      // 添加到临时容器
+      titleSection.appendChild(titleElement);
+      titleSection.appendChild(infoSection);
+      pdfContentContainer.appendChild(titleSection);
+      pdfContentContainer.appendChild(contentClone);
+      
+      // 确保标题区域也正确居中
+      titleSection.style.width = '180mm'; // 与内容相同的宽度
+      titleSection.style.margin = '0 auto'; // 水平居中
+      
+      // 临时添加到DOM
+      document.body.appendChild(pdfContentContainer);
+      
+      // 配置html2pdf选项 - 确保内容居中
+      const opt = {
+        margin: [10, 15, 10, 15] as [number, number, number, number], // 上下边距10mm，左右边距15mm（保持不变）
+        filename: `${documentData.title.replace(/[\\/:*?"<>|]/g, '_')}.pdf`,
+        image: { type: 'jpeg' as const, quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          // 移除可能导致问题的裁剪设置
+          allowTaint: true,
+          scrollX: 0,
+          scrollY: 0
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait' as const
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css'] as const,
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: ['h1', 'h2', 'h3', 'table', 'figure'] as const
+        }
+      };
+      
+      // 使用html2pdf生成PDF
+      await html2pdf().set(opt).from(pdfContentContainer).save();
+      
+      // 移除临时容器
+      document.body.removeChild(pdfContentContainer);
+      
+      Message.success('PDF下载成功');
+    } catch (error) {
+      console.error('生成PDF失败:', error);
+      Message.error('生成PDF失败，请稍后重试');
+    }
+  };
+  
   // 渲染目录项的内部函数
   const renderTocItem = (item: TableOfContentsItem, level: number = 0) => {
     const hasChildren = item.children && item.children.length > 0;
@@ -506,12 +732,7 @@ const RuleDetail: React.FC = () => {
             <span className={styles.tooltip}>下载PDF</span>
             <button 
               className={styles.actionButton}
-              onClick={() => {
-                // 下载PDF功能 - 这里是示例实现
-                console.log('下载PDF:', documentData.title);
-                // 实际项目中应该调用API获取PDF或生成PDF
-                Message.success(`下载PDF: ${documentData.title}`);
-              }}
+              onClick={() => handleDownloadPDF()}
               aria-label="下载PDF"
             >
               <IconDownload style={{ fontSize: '18px', color: '#333333' }} />
