@@ -62,7 +62,18 @@ data/
 db/
 
 # 环境配置
+.env
+.env.local
+.env.*.local
 config/local.js
 config/development.js
 config/test.js
 config/production.js
+
+# Node.js依赖
+node_modules/
+
+# PostgreSQL数据文件（如果本地开发使用PostgreSQL）
+*.pid
+*.sock
+pgdata/
